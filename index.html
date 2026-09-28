@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Análise - Superintendência</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
@@ -993,7 +992,7 @@ tbody td:nth-child(2){
 
 .chart-svg{
   width:100%;
-  height:310px;
+  height:275px;
   display:block;
 }
 
@@ -1116,6 +1115,7 @@ tbody td:nth-child(2){
 
 /* Página Tabelas: sem notas, sem Pontos/Peso/Score e com limites claros por região */
 .tables-no-score .table-total-score,
+.tables-no-score .table-card-actions,
 .tables-no-score .calc-col{
   display:none!important;
 }
@@ -1159,42 +1159,6 @@ tbody td:nth-child(2){
 .all-tables-card{
   padding:14px;
   margin-bottom:14px;
-  position:relative;
-}
-
-.all-tables-card .region-table-title{
-  padding-right:150px;
-  min-height:32px;
-  display:flex;
-  align-items:center;
-}
-
-.all-tables-card .data-table-block > .table-card-head{
-  position:absolute;
-  top:21px;
-  right:24px;
-  margin:0;
-  z-index:3;
-  pointer-events:none;
-}
-
-.all-tables-card .data-table-block > .table-card-head .table-total-score{
-  display:none!important;
-}
-
-.all-tables-card .data-table-block > .table-card-head .table-card-actions{
-  pointer-events:auto;
-}
-
-.all-tables-card .toggle-actions{
-  border:1px solid #b9d9d5;
-  background:#fff;
-  color:#006b63;
-  border-radius:7px;
-  padding:6px 10px;
-  font-size:9px;
-  font-weight:800;
-  cursor:pointer;
 }
 
 @media(max-width:1180px){
@@ -1213,482 +1177,438 @@ tbody td:nth-child(2){
   .chart-toolbar,.evolution-controls,.evolution-filter-grid{grid-template-columns:1fr}
 }
 
-
-/* ============================================================
-   JUSTIFICATIVAS SEMANAIS
-   ============================================================ */
-.just-cell{min-width:220px;text-align:center!important}
-.just-preview{margin-top:6px;color:#44524f;font-size:9px;line-height:1.35;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.just-pending,.just-ok{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 9px;border-radius:999px;font-size:8px;font-weight:900;letter-spacing:.25px}
-.just-pending{background:#fde6e6;border:1px solid #efaaaa;color:#b82e2e}
-.just-ok{background:#dff5ef;border:1px solid #a4dcd6;color:#007b72}
-.just-ok.readonly-click,.just-pending.readonly-click{cursor:pointer}
-.actions-toggle-filter{min-width:130px}
-.actions-toggle-filter .toggle-actions{width:100%;min-height:32px}
-.just-actions-col{display:none;min-width:175px;text-align:center!important;white-space:nowrap}
-table.show-actions .just-actions-col{display:table-cell}
-.just-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:5px}
-.just-btn,.toggle-actions{border:1px solid #b9d9d5;background:#fff;color:#006b63;border-radius:7px;padding:5px 8px;font-size:8px;font-weight:800;cursor:pointer}
-.toggle-actions{padding:7px 11px;font-size:9px}
-.just-btn:hover,.toggle-actions:hover{border-color:#009B91;background:#f2fbfa}
-.just-btn.danger{background:#fff4f4;border-color:#efb4b4;color:#b82e2e}
-.just-na{color:#a0aaa7;font-size:9px}
-.just-modal-backdrop{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(13,30,28,.50)}
-.just-modal-backdrop.open{display:flex}
-.just-modal{width:min(760px,96vw);max-height:88vh;overflow:auto;border-radius:14px;background:#fff;box-shadow:0 24px 70px rgba(0,0,0,.25);border:1px solid #dce7e5}
-.just-modal-head{position:sticky;top:0;z-index:2;padding:16px 18px;display:flex;justify-content:space-between;gap:14px;align-items:flex-start;background:#fff;border-bottom:1px solid #e4ecea}
-.just-modal-head h3{margin:0;color:#173c39;font-size:17px}
-.just-modal-head p{margin:4px 0 0;color:#71807d;font-size:10px}
-.just-close{border:0;background:#eef4f3;color:#31514d;width:31px;height:31px;border-radius:50%;cursor:pointer;font-size:18px;font-weight:900}
-.just-modal-body{padding:16px 18px 18px}
-.just-editor textarea{width:100%;min-height:150px;resize:vertical;padding:12px;border:1px solid #cbdedb;border-radius:9px;font:inherit;font-size:12px;line-height:1.5;color:#263433;outline:none}
-.just-editor textarea:focus{border-color:#009B91;box-shadow:0 0 0 3px rgba(0,155,145,.10)}
-.just-editor-footer{margin-top:10px;display:flex;justify-content:flex-end;gap:8px}
-.just-save-status{margin-right:auto;align-self:center;font-size:9px;color:#70807c}
-.just-week-current,.just-week-history{padding:13px 14px;border-radius:10px;margin-bottom:10px}
-.just-week-current{background:#f2fbfa;border:1px solid #b7e0dc;color:#1f3431}
-.just-week-current .just-comment{font-weight:800;color:#172c29}
-.just-week-history{background:#f6f7f7;border:1px solid #e2e7e6;color:#697673}
-.just-week-label{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.3px}
-.just-comment{margin-top:7px;white-space:pre-wrap;font-size:12px;line-height:1.5}
-.just-meta{margin-top:8px;font-size:9px;color:#899491}
-.just-empty-history{padding:20px;text-align:center;color:#7c8986;font-size:11px}
-
-
-/* Filtro retrátil de regiões - Evolução Temporal */
-.region-dropdown{
-  position:relative;
+/* ==========================================================
+   V22 - COMPARAÇÃO EXECUTIVA
+   Alteração isolada: Visão Geral, Tabelas e Evolução Temporal
+   continuam com o CSS/HTML original da V18 restaurada.
+   ========================================================== */
+.executive-comparison-view{
+  --exec-green:#009B91;
+  --exec-dark:#005852;
+  --exec-orange:#F5AA41;
+  --exec-gray:#7F7F7F;
+  --exec-soft:#F4F8F7;
+  --exec-line:#DCE8E6;
 }
-
-.region-toggle{
-  width:100%;
-  min-height:35px;
-  padding:7px 34px 7px 10px;
-  border:1px solid #cfdcda;
-  border-radius:7px;
+.executive-comparison-head{margin-bottom:8px}
+.comparison-period-pill{
+  border:1px solid var(--exec-line);
+  border-radius:9px;
   background:#fff;
-  color:#294743;
+  padding:8px 12px;
+  color:var(--exec-dark);
   font-size:10px;
   font-weight:800;
-  text-align:left;
-  cursor:pointer;
+}
+.exec-summary{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(220px,1fr));
+  gap:10px;
+  max-width:620px;
+  margin-left:auto;
+  margin-bottom:8px;
+}
+.exec-kpi{
+  background:#fff;
+  border:1px solid var(--exec-line);
+  border-radius:12px;
+  padding:10px 13px;
+  display:grid;
+  grid-template-columns:38px 1fr auto;
+  gap:10px;
+  align-items:center;
+  box-shadow:0 4px 14px rgba(0,88,82,.045);
+}
+.exec-kpi-icon{
+  width:36px;height:36px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#E4F6F3;color:var(--exec-green);
+  font-size:17px;font-weight:900;
+}
+.exec-kpi.pending .exec-kpi-icon{background:#FFF1DD;color:#C77A00}
+.exec-kpi-copy small{
+  display:block;color:#6E7E7B;font-size:8px;font-weight:700;margin-bottom:1px
+}
+.exec-kpi-copy strong{
+  display:block;color:#183B37;font-size:20px;line-height:1
+}
+.exec-kpi-rate{font-size:10px;font-weight:900;color:var(--exec-green)}
+.exec-kpi.pending .exec-kpi-rate{color:#C77A00}
+.exec-kpi-track{
+  grid-column:2/4;height:5px;border-radius:999px;background:#E8EFEE;overflow:hidden;margin-top:-2px
+}
+.exec-kpi-track i{display:block;height:100%;border-radius:inherit;background:var(--exec-green)}
+.exec-kpi.pending .exec-kpi-track i{background:var(--exec-orange)}
+
+.exec-legend{
+  display:flex;justify-content:flex-end;align-items:center;gap:18px;
+  color:#52635F;font-size:9px;font-weight:700;margin:0 2px 11px;
+}
+.exec-legend span{display:flex;align-items:center;gap:6px}
+.exec-target-line{width:20px;height:0;border-top:2px dashed #213B38;display:inline-block}
+.exec-real-swatch{width:15px;height:7px;border-radius:2px;display:inline-block}
+.exec-real-swatch.met{background:var(--exec-green)}
+.exec-real-swatch.missed{background:var(--exec-orange)}
+
+.exec-block-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+.exec-block{
+  background:#fff;
+  border:1px solid var(--exec-line);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 7px 22px rgba(0,88,82,.055);
+  min-width:0;
+}
+.exec-block-head{
+  min-height:45px;
+  background:linear-gradient(90deg,var(--exec-dark),var(--exec-green));
+  color:#fff;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;padding:0 13px;
+}
+.exec-block-head-left{display:flex;align-items:center;gap:9px;min-width:0}
+.exec-block-icon{
+  width:27px;height:27px;border-radius:8px;
+  background:rgba(255,255,255,.12);
+  display:grid;place-items:center;font-weight:900;font-size:14px;flex:0 0 auto
+}
+.exec-block-title{font-size:14px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exec-block-just-link{
+  border:0;background:transparent;color:#fff;
+  font-size:7.5px;font-weight:800;white-space:nowrap;cursor:pointer;opacity:.92
+}
+.exec-block-body{padding:10px}
+.exec-indicator + .exec-indicator{
+  border-top:1px solid #E7EFED;
+  margin-top:9px;padding-top:9px
+}
+.exec-indicator-head{
+  display:grid;grid-template-columns:minmax(0,1fr) 124px;gap:7px;align-items:start;margin-bottom:5px
+}
+.exec-indicator-title{
+  font-size:10px;font-weight:800;line-height:1.25;color:#173D39;
+  min-height:26px
+}
+.exec-general{
+  background:#F2F8F7;border:1px solid #E0EBE9;border-radius:9px;
+  padding:6px 7px;
+}
+.exec-general-label{font-size:6.5px;color:#59706C;font-weight:900;margin-bottom:4px}
+.exec-general-values{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.exec-general-values small{display:block;color:#83918E;font-size:5.8px}
+.exec-general-values strong{display:block;font-size:9.5px;color:#193B37}
+.exec-general-status{
+  margin-top:4px;font-size:7px;font-weight:900;display:flex;align-items:center;gap:4px
+}
+.exec-general-status.met{color:#007C72}.exec-general-status.missed{color:#C67600}
+.exec-dot{width:13px;height:13px;border-radius:50%;display:inline-grid;place-items:center;color:#fff;font-size:8px}
+.exec-general-status.met .exec-dot{background:var(--exec-green)}
+.exec-general-status.missed .exec-dot{background:var(--exec-orange)}
+
+.exec-vchart{
+  height:190px;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:5px;
+  align-items:end;
+  padding:8px 2px 0;
+}
+.exec-block.has-just .exec-vchart{height:145px}
+.exec-vcol{height:100%;display:flex;flex-direction:column;justify-content:flex-end;min-width:0}
+.exec-vplot{height:calc(100% - 28px);position:relative;display:flex;align-items:flex-end;justify-content:center}
+.exec-vbar{
+  z-index:1;
+  width:min(30px,78%);
+  min-height:5px;border-radius:4px 4px 0 0;
   position:relative;
+  box-shadow:inset 0 -1px 0 rgba(0,0,0,.06)
+}
+.exec-vbar.met{background:linear-gradient(180deg,#10B5A8,var(--exec-green))}
+.exec-vbar.missed{background:linear-gradient(180deg,#FFAC39,var(--exec-orange))}
+.exec-vbar-value{
+  position:absolute;left:50%;bottom:5px;transform:translateX(-50%);
+  color:#fff;font-size:6.5px;font-weight:900;white-space:nowrap
+}
+.exec-target-marker{
+  position:absolute;left:12%;right:12%;z-index:6;
+  border-top:2px dashed #203C38;height:1px;
+  pointer-events:none
+}
+.exec-target-value{
+  position:absolute;left:50%;bottom:5px;transform:translateX(-50%);
+  padding:2px 3px;border:1px solid #D6E2DF;border-radius:4px;
+  background:#FFFFFF;box-shadow:0 1px 3px rgba(0,0,0,.07);
+  font-size:7px;font-weight:900;color:#203C38;white-space:nowrap;
+  z-index:7
+}
+.exec-vregion{
+  height:28px;display:flex;align-items:flex-end;justify-content:center;
+  text-align:center;font-size:6.2px;font-weight:800;color:#425753;line-height:1.1;
+  padding-top:4px
+}
+.exec-justifications{
+  margin-top:7px;padding:7px 8px;border-radius:8px;
+  background:#F3F7F6;border:1px solid #E1EAE8
+}
+.exec-just-title{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:7.5px;font-weight:900;color:#203E39;margin-bottom:5px
+}
+.exec-just-title button{
+  border:0;background:transparent;color:#008C82;font-size:6.7px;
+  text-decoration:underline;cursor:pointer;padding:0
+}
+.exec-just-line{
+  display:grid;grid-template-columns:7px minmax(0,1fr);gap:5px;
+  font-size:6.4px;line-height:1.25;color:#445955;margin-top:4px
+}
+.exec-just-line i{width:7px;height:7px;border-radius:50%;background:var(--exec-orange);margin-top:1px}
+.exec-just-line strong{color:#183E39}
+.exec-no-just{display:none}
+
+.exec-irl-main{
+  height:195px;display:grid;place-items:center
+}
+.exec-block.has-just .exec-irl-main{height:155px}
+.exec-irl-svg{width:210px;max-width:100%;height:150px;overflow:visible}
+.exec-irl-regions{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-top:0
+}
+.exec-irl-mini{text-align:center;min-width:0}
+.exec-irl-mini svg{width:42px;max-width:100%;height:28px}
+.exec-irl-mini strong{display:block;font-size:7.5px;color:#203E39}
+.exec-irl-mini span{display:block;font-size:5.7px;color:#586B67;margin-top:1px}
+
+.exec-modal-bg{
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  background:rgba(11,31,29,.48);z-index:200;padding:18px
+}
+.exec-modal-bg.open{display:flex}
+.exec-modal{
+  width:min(760px,96vw);max-height:88vh;overflow:auto;
+  background:#fff;border-radius:14px;box-shadow:0 22px 60px rgba(0,0,0,.2)
+}
+.exec-modal-head{
+  background:var(--exec-dark);color:#fff;padding:13px 15px;
+  display:flex;justify-content:space-between;align-items:center
+}
+.exec-modal-head h3{margin:0;font-size:13px}
+.exec-modal-close{border:0;background:rgba(255,255,255,.15);color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer}
+.exec-modal-body{padding:13px}
+.exec-just-editor{
+  border:1px solid #E0E9E7;border-radius:9px;padding:9px;margin-bottom:8px
+}
+.exec-just-editor h4{margin:0 0 4px;font-size:9px;color:#173D39}
+.exec-just-editor small{display:block;font-size:6.8px;color:#7D8C89;margin-bottom:5px}
+.exec-just-editor textarea{
+  width:100%;min-height:72px;border:1px solid #C9DCD9;border-radius:7px;
+  padding:7px;font-size:8px;resize:vertical
+}
+.exec-just-editor-footer{display:flex;justify-content:space-between;align-items:center;margin-top:5px}
+.exec-charcount{font-size:6.7px;color:#7C8987}
+.exec-save{
+  border:0;border-radius:7px;background:var(--exec-dark);color:#fff;
+  padding:6px 9px;font-size:7px;font-weight:900;cursor:pointer
 }
 
-.region-toggle::after{
-  content:"⌄";
-  position:absolute;
-  right:11px;
-  top:50%;
-  transform:translateY(-54%);
-  font-size:14px;
-  color:#55706c;
+@media(max-width:1450px){
+  .exec-block-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
-
-.region-dropdown:has(.region-menu.open) .region-toggle::after{
-  content:"⌃";
+@media(max-width:1120px){
+  .exec-block-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
-
-.region-menu{
-  display:none;
-  position:absolute;
-  top:calc(100% + 5px);
-  left:0;
-  right:0;
-  z-index:40;
-  max-height:230px;
-  overflow-y:auto;
-  padding:7px;
-  border:1px solid #d4e1df;
-  border-radius:8px;
-  background:#fff;
-  box-shadow:0 10px 26px rgba(0,55,50,.14);
-}
-
-.region-menu.open{
-  display:block;
-}
-
-.region-option{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:7px 8px;
-  border-radius:6px;
-  color:#294743;
-  font-size:10px;
-  font-weight:700;
-  cursor:pointer;
-}
-
-.region-option:hover{
-  background:#f1f7f6;
-}
-
-.region-option input{
-  margin:0;
-  accent-color:#009B91;
-}
-
-
-/* ============================================================
-   LOGIN / CONTROLE DE ACESSO
-   ============================================================ */
-body.auth-pending{
-  overflow:hidden;
-}
-
-.app{
-  transition:opacity .18s ease;
-}
-
-body.auth-pending .app,
-body.auth-logged-out .app{
-  opacity:0;
-  pointer-events:none;
-  user-select:none;
-}
-
-.login-screen{
-  position:fixed;
-  inset:0;
-  z-index:99999;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(0,155,145,.18), transparent 32%),
-    linear-gradient(145deg,#061f2b 0%,#0a3441 55%,#0b4b50 100%);
-}
-
-body.auth-pending .login-screen,
-body.auth-logged-out .login-screen{
-  display:flex;
-}
-
-body.auth-pending .login-card{
-  opacity:.55;
-  pointer-events:none;
-}
-
-.login-card{
-  width:min(410px,100%);
-  background:#fff;
-  border-radius:16px;
-  box-shadow:0 28px 70px rgba(0,0,0,.28);
-  overflow:hidden;
-}
-
-.login-brand{
-  padding:24px 26px 18px;
-  background:#009B91;
-  color:#fff;
-}
-
-.login-brand h1{
-  margin:0;
-  font-size:23px;
-  line-height:1.1;
-}
-
-.login-brand p{
-  margin:7px 0 0;
-  font-size:12px;
-  opacity:.9;
-}
-
-.login-form{
-  padding:24px 26px 26px;
-}
-
-.login-field{
-  margin-bottom:14px;
-}
-
-.login-field label{
-  display:block;
-  margin-bottom:6px;
-  font-size:11px;
-  font-weight:800;
-  color:#344b48;
-}
-
-.login-field input{
-  width:100%;
-  box-sizing:border-box;
-  height:42px;
-  padding:0 12px;
-  border:1px solid #cddbd9;
-  border-radius:8px;
-  outline:none;
-  font:inherit;
-}
-
-.login-field input:focus{
-  border-color:#009B91;
-  box-shadow:0 0 0 3px rgba(0,155,145,.12);
-}
-
-.login-button{
-  width:100%;
-  height:43px;
-  border:0;
-  border-radius:8px;
-  background:#009B91;
-  color:#fff;
-  font-weight:900;
-  cursor:pointer;
-}
-
-.login-button:disabled{
-  opacity:.6;
-  cursor:wait;
-}
-
-.login-error{
-  display:none;
-  margin-top:12px;
-  padding:9px 10px;
-  border-radius:7px;
-  background:#fff0ef;
-  color:#a3261d;
-  font-size:11px;
-  font-weight:700;
-}
-
-.login-error.show{
-  display:block;
-}
-
-.auth-user-actions{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.auth-role-badge{
-  padding:5px 8px;
-  border-radius:999px;
-  background:#e9f6f4;
-  color:#006b63;
-  font-size:9px;
-  font-weight:900;
-  letter-spacing:.03em;
-}
-
-.logout-button{
-  border:1px solid #cfdfdd;
-  background:#fff;
-  color:#405653;
-  border-radius:7px;
-  padding:6px 9px;
-  font-size:9px;
-  font-weight:800;
-  cursor:pointer;
-}
-
-body.access-operacional .nav-item:not([data-view="tables"]){
-  display:none!important;
-}
-
-body.access-operacional #exportButton{
-  display:none!important;
-}
-
-body.access-operacional #view-general,
-body.access-operacional #view-comparison,
-body.access-operacional #view-evolution{
-  display:none!important;
+@media(max-width:760px){
+  .exec-block-grid{grid-template-columns:1fr}
+  .exec-summary{grid-template-columns:1fr;max-width:none}
+  .exec-legend{justify-content:flex-start;flex-wrap:wrap}
 }
 
 
-/* V15 - menu retrátil */
-.sidebar-toggle{position:absolute;right:-15px;top:18px;width:31px;height:31px;border:0;border-radius:50%;background:#00877f;color:#fff;font-weight:900;cursor:pointer;box-shadow:0 5px 14px rgba(0,88,82,.25);z-index:20}
-.sidebar{overflow:visible}.app.sidebar-collapsed{grid-template-columns:76px minmax(0,1fr)}
-.app.sidebar-collapsed .side-brand{padding:23px 10px;justify-content:center}.app.sidebar-collapsed .brand-copy,.app.sidebar-collapsed .side-message{display:none}
-.app.sidebar-collapsed .nav-item{padding:0;justify-content:center;border-left-width:3px;font-size:0}.app.sidebar-collapsed .nav-icon{width:30px}
+/* V24 - comparação: painéis mais legíveis, meta individual e rótulos inteligentes */
+.executive-comparison-view .exec-block-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.executive-comparison-view .exec-block{border-radius:15px;border-color:#CEE2DE;box-shadow:0 11px 29px rgba(0,88,82,.085)}
+.executive-comparison-view .exec-block-head{min-height:48px}
+.executive-comparison-view .exec-block-body{padding:12px}
+.executive-comparison-view .exec-indicator-head{grid-template-columns:minmax(0,1fr) 135px;gap:10px;min-height:70px}
+.executive-comparison-view .exec-indicator-title{font-size:12px;line-height:1.28;min-height:0;overflow-wrap:anywhere}
+.executive-comparison-view .exec-general{padding:8px 9px;background:linear-gradient(135deg,#E8F7F4,#F5FBFA);border-color:#C8E7E1}
+.executive-comparison-view .exec-general-label{font-size:8px}
+.executive-comparison-view .exec-general-values strong{font-size:10.5px}
+.executive-comparison-view .exec-general-status{font-size:8px}
+.executive-comparison-view .exec-vchart{height:235px;padding:4px 3px 0;gap:8px}
+.executive-comparison-view .exec-block.has-just .exec-vchart{height:225px}
+.executive-comparison-view .exec-vplot{height:calc(100% - 37px);overflow:visible;border-bottom:1px solid #D9E6E3;background:linear-gradient(180deg,rgba(0,155,145,.035),transparent 60%)}
+.executive-comparison-view .exec-vbar{width:min(39px,72%);max-width:100%;border-radius:6px 6px 0 0;z-index:1}
+.executive-comparison-view .exec-vbar.met{background:linear-gradient(180deg,#13BEAF,#009B91)}
+.executive-comparison-view .exec-vbar.missed{background:linear-gradient(180deg,#FFBA55,#F5AA41)}
+.executive-comparison-view .exec-vbar-value{display:none}
+.executive-comparison-view .exec-target-marker{left:13%;right:13%;border-top:2px dashed #163F3A;z-index:5}
+.executive-comparison-view .exec-target-value{display:none}
+.executive-comparison-view .exec-label{position:absolute;left:50%;transform:translateX(-50%);z-index:9;min-width:45px;max-width:110%;padding:3px 4px;border-radius:5px;background:#fff;border:1px solid #CCDCD8;box-shadow:0 2px 5px rgba(0,65,58,.11);color:#1D433E;font-size:8px;font-weight:900;white-space:nowrap;text-align:center;line-height:1.12;pointer-events:none}
+.executive-comparison-view .exec-label b{font-size:7px;color:#546963;margin-right:2px}
+.executive-comparison-view .exec-label.real{border-color:#B6E2DA;color:#006E66}
+.executive-comparison-view .exec-label.real.missed{border-color:#F1CC92;color:#B36A00}
+.executive-comparison-view .exec-label.meta{border-style:dashed}
+.executive-comparison-view .exec-label.collision.real{left:74%}
+.executive-comparison-view .exec-label.collision.meta{left:26%}
+.executive-comparison-view .exec-vregion{height:36px;font-size:8px;align-items:center;line-height:1.13}
+.executive-comparison-view .exec-region-delta{font-size:8px;font-weight:900;text-align:center;margin-top:3px;white-space:nowrap}
+.executive-comparison-view .exec-region-delta.met{color:#00887E}
+.executive-comparison-view .exec-region-delta.missed{color:#AD6900}
+.executive-comparison-view .exec-indicator + .exec-indicator{margin-top:11px;padding-top:12px}
+.executive-comparison-view .exec-block.multi-indicator{grid-column:span 2}
+.executive-comparison-view .exec-block.multi-indicator>.exec-block-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.executive-comparison-view .exec-block.multi-indicator>.exec-block-body>.exec-indicator{border:1px solid #E0EBE8;border-radius:10px;padding:11px;min-width:0;margin:0}
+.executive-comparison-view .exec-block.multi-indicator>.exec-block-body>.exec-indicator:last-of-type:nth-child(odd){grid-column:1/-1}
+.executive-comparison-view .exec-block.multi-indicator>.exec-block-body>.exec-justifications{grid-column:1/-1;margin:0}
+.executive-comparison-view .exec-irl-main{height:205px}
+.executive-comparison-view .exec-block.has-just .exec-irl-main{height:190px}
+.executive-comparison-view .exec-irl-svg{width:240px;height:170px}
+.executive-comparison-view .exec-irl-mini strong{font-size:10px}
+.executive-comparison-view .exec-irl-mini span{font-size:8px}
+.executive-comparison-view .exec-irl-class{display:block;font-size:8px;font-weight:900;padding:3px 4px;margin:4px auto 0;border-radius:999px;background:#DFF4EF;color:#006F65;max-width:82px}
+.executive-comparison-view .exec-irl-class.aceitavel{background:#FFF0D4;color:#976000}
+.executive-comparison-view .exec-irl-class.toleravel{background:#FFE0B9;color:#945100}
+.executive-comparison-view .exec-irl-class.critico{background:#FCE0D9;color:#A3362B}
+.executive-comparison-view .exec-irl-general-class{text-align:center;font-size:10px;font-weight:900;color:#005852;margin:-13px 0 12px}
+.executive-comparison-view .exec-justifications{background:linear-gradient(135deg,#EDF7F5,#F8FBFA);border-color:#D0E7E2;padding:10px}
+.executive-comparison-view .exec-just-title{font-size:9px}
+.executive-comparison-view .exec-just-line{font-size:8px}
+@media(max-width:1450px){.executive-comparison-view .exec-block-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){.executive-comparison-view .exec-block-grid{grid-template-columns:1fr}.executive-comparison-view .exec-block.multi-indicator{grid-column:auto}.executive-comparison-view .exec-block.multi-indicator>.exec-block-body{grid-template-columns:1fr}.executive-comparison-view .exec-block.multi-indicator>.exec-block-body>.exec-indicator:last-of-type:nth-child(odd){grid-column:auto}}
 
-/* V18 - nova Comparação (visual alinhado à imagem de referência) */
-#view-comparison .page-head{margin-bottom:12px}
-.comparison-v15{display:flex;flex-direction:column;gap:16px}
-.comp-block,.comp-irl-wrap{
-  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(250,252,252,.96));
-  border:1px solid #d7e8e5;border-radius:18px;padding:14px;
-  box-shadow:0 10px 26px rgba(0,88,82,.06)
-}
-.comp-block-title,.comp-card-head,.comp-irl-head{
-  display:flex;align-items:center;justify-content:space-between;gap:10px
-}
-.comp-block-title{margin-bottom:12px}
-.comp-block-title h2,.comp-irl-head h2{
-  margin:0;color:var(--primary-dark);font-size:18px;letter-spacing:-.2px
-}
-.comp-block-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.comp-card{
-  min-width:0;border:1px solid #e2ecea;border-radius:16px;background:#fff;padding:12px;
-  box-shadow:0 6px 18px rgba(0,88,82,.045)
-}
-.comp-card-title h3{margin:0;font-size:14px;color:#152b29;line-height:1.25}
-.comp-card-title small{display:block;margin-top:3px;color:#778784;font-size:10px;font-weight:700}
-.comp-general{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-bottom:10px}
-.comp-kpi{
-  min-width:0;padding:10px 8px;border-radius:11px;background:#f6f9f9;text-align:center;
-  border:1px solid #ebf2f1
-}
-.comp-kpi span{display:block;font-size:9px;color:#71817e;margin-bottom:4px;font-weight:800;text-transform:uppercase}
-.comp-kpi strong{font-size:16px;color:#172a29}
-.comp-kpi.plan strong{color:#56625f}
-.comp-kpi.real.ok strong,.comp-kpi.diff.ok strong{color:var(--primary)}
-.comp-kpi.real.bad strong,.comp-kpi.diff.bad strong{color:var(--secondary-dark)}
-.comp-bars{
-  height:210px;display:flex;align-items:flex-end;gap:10px;padding:10px 6px 6px;
-  border-top:1px solid #edf2f1;border-bottom:1px solid #f3f6f6
-}
-.comp-region{
-  flex:1 1 0;min-width:0;height:100%;display:flex;flex-direction:column;
-  justify-content:flex-end;align-items:center
-}
-.comp-bar-stage{
-  width:100%;flex:1;min-height:120px;display:flex;align-items:flex-end;justify-content:center;gap:6px
-}
-.comp-bar{
-  position:relative;width:min(30px,38%);min-height:4px;border-radius:6px 6px 2px 2px
-}
-.comp-bar.plan{background:#b8c0c0;box-shadow:inset 0 -8px 16px rgba(255,255,255,.16)}
-.comp-bar.real.ok{background:var(--primary);box-shadow:inset 0 -8px 16px rgba(255,255,255,.18)}
-.comp-bar.real.bad{background:var(--secondary);box-shadow:inset 0 -8px 16px rgba(255,255,255,.2)}
-.comp-bar-label{
-  position:absolute;left:50%;transform:translateX(-50%);top:-18px;white-space:nowrap;
-  font-size:9px;font-weight:800;color:#263433
-}
-.comp-region-name{
-  margin-top:7px;font-size:10px;font-weight:900;color:#485754;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;max-width:100%
-}
-.comp-region-diff{margin-top:2px;font-size:10px;font-weight:900}
-.comp-region-diff.ok{color:var(--primary)}
-.comp-region-diff.bad{color:#e65b33}
-.comp-pending{
-  margin-top:10px;border-radius:10px;background:#fff7f2;border:1px solid #fde0ce;padding:8px
-}
-.comp-pending-head{color:#dc5d24;font-size:10px;font-weight:900;margin-bottom:6px}
-.comp-pending-list{display:flex;gap:6px;flex-wrap:wrap}
-.comp-pending-btn{
-  border:1px solid #f8ccb1;background:#fff;color:#c85a25;border-radius:999px;padding:5px 9px;
-  font-size:9px;font-weight:800;cursor:pointer
-}
-.comp-ok-note{
-  margin-top:10px;border-radius:10px;background:#eaf9f5;color:#007b72;padding:8px 10px;
-  font-size:10px;font-weight:800
-}
-.comp-irl-head{margin-bottom:10px}
-.comp-irl-head h2{font-size:20px}
-.comp-irl-layout{display:grid;grid-template-columns:320px minmax(0,1fr) 280px;gap:12px}
-.comp-irl-summary,.comp-irl-regions,.comp-irl-pending{
-  border:1px solid #e1ecea;border-radius:14px;background:#fff;padding:12px
-}
-.comp-irl-summary h3,.comp-irl-regions h3,.comp-irl-pending h3{
-  margin:0 0 10px;font-size:12px;color:#263433
-}
-.irl-summary-gauge-wrap{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:4px 0 8px
-}
-.irl-main-meta{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;margin-top:10px
-}
-.irl-main-meta .comp-kpi{padding:8px 6px}
-.irl-class-scale{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:10px}
-.irl-scale-box{padding:7px 4px;text-align:center;border-radius:7px;font-size:8px;font-weight:900}
-.irl-scale-box.seguro{background:#c6f2e3;color:#08745f}
-.irl-scale-box.aceitavel{background:#fff0a9;color:#725f00}
-.irl-scale-box.toleravel{background:#ffd2a7;color:#9c4b00}
-.irl-scale-box.critico{background:#ffc6c6;color:#9a2727}
-.irl-region-grid{display:grid;grid-template-columns:repeat(5,minmax(94px,1fr));gap:10px}
-.irl-gauge-card{
-  text-align:center;min-width:0;border:1px solid #edf3f2;border-radius:12px;padding:8px 6px;
-  background:linear-gradient(180deg,#ffffff,#fbfdfd)
-}
-.irl-gauge-name{font-size:10px;font-weight:900;margin-bottom:4px;color:#264441}
-.irl-gauge{
-  position:relative;width:118px;height:68px;margin:0 auto 6px;overflow:hidden
-}
-.irl-gauge .irl-segments{
-  position:absolute;inset:0;border-radius:110px 110px 0 0;
-  background:
-    conic-gradient(
-      from 180deg at 50% 100%,
-      #14b87f 0deg 45deg,
-      #f1dc47 45deg 90deg,
-      #f5aa41 90deg 135deg,
-      #ef6a55 135deg 180deg
-    )
-}
-.irl-gauge .irl-segments::after{
-  content:"";position:absolute;left:16px;right:16px;bottom:-1px;height:41px;
-  border-radius:68px 68px 0 0;background:#fff
-}
-.irl-needle{
-  position:absolute;left:50%;bottom:0;width:0;height:0;z-index:2;
-  transform:translateX(-50%) rotate(var(--needle-deg,-90deg));
-  transform-origin:50% 100%
-}
-.irl-needle::before{
-  content:"";position:absolute;left:-1.5px;bottom:7px;width:3px;height:40px;
-  background:#243836;border-radius:999px
-}
-.irl-needle::after{
-  content:"";position:absolute;left:-6px;bottom:0;width:12px;height:12px;
-  background:#243836;border-radius:50%;box-shadow:0 0 0 3px #fff
-}
-.irl-gauge-value{font-size:21px;font-weight:900;color:#172a29;line-height:1}
-.irl-gauge-meta{font-size:9px;color:#778784;line-height:1.35}
-.irl-class-pill{
-  display:inline-block;margin-top:5px;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:900
-}
-.irl-class-pill.seguro{background:#c6f2e3;color:#08745f}
-.irl-class-pill.aceitavel{background:#fff0a9;color:#725f00}
-.irl-class-pill.toleravel{background:#ffd2a7;color:#9c4b00}
-.irl-class-pill.critico{background:#ffc6c6;color:#9a2727}
-@media(max-width:1180px){
-  .comp-block-grid{grid-template-columns:1fr}
-  .comp-irl-layout{grid-template-columns:1fr}
-  .irl-region-grid{grid-template-columns:repeat(3,1fr)}
-}
 
+/* V25 - gauge semicircular real, quadro compacto e ocupação adaptativa; só Comparação */
+.executive-comparison-view .exec-block-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;align-items:start}
+.executive-comparison-view .exec-block.multi-indicator{grid-column:span 2}
+.executive-comparison-view .exec-indicator-head{grid-template-columns:minmax(0,1fr);gap:7px;min-height:0}
+.executive-comparison-view .exec-indicator-title{font-size:12px;min-height:0}
+.executive-comparison-view .exec-general-with-gauge{display:grid;grid-template-columns:minmax(0,1fr) 148px;gap:8px;align-items:center;padding:7px 11px;min-height:100px;overflow:visible}
+.executive-comparison-view .exec-general-info{min-width:0;align-self:center}
+.executive-comparison-view .exec-general-values{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:5px}
+.executive-comparison-view .exec-general-values small{font-size:7px;white-space:nowrap}
+.executive-comparison-view .exec-general-values strong{font-size:13px;white-space:normal;overflow-wrap:anywhere}
+.executive-comparison-view .exec-general-label{font-size:8px;letter-spacing:.45px}
+.executive-comparison-view .exec-general-status{display:flex;flex-wrap:wrap;gap:5px;align-items:center;font-size:8px;margin-top:7px}
+.executive-comparison-view .exec-general-delta{margin-left:auto;font-weight:900;font-size:9px}
+.executive-comparison-view .exec-meta-gauge-wrap{width:148px;display:grid;place-items:center;align-self:center}
+.executive-comparison-view .exec-meta-gauge{width:144px;height:110px;display:block;overflow:visible}
+.executive-comparison-view .exec-vchart{height:263px;margin-top:5px;gap:8px}
+.executive-comparison-view .exec-block.has-just .exec-vchart{height:218px}
+.executive-comparison-view .exec-vplot{height:calc(100% - 39px)}
+.executive-comparison-view .exec-label{font-size:8.4px}
+@media(max-width:1100px){.executive-comparison-view .exec-block-grid{grid-template-columns:1fr}.executive-comparison-view .exec-block.multi-indicator{grid-column:auto}}
+@media(max-width:700px){.executive-comparison-view .exec-general-with-gauge{grid-template-columns:minmax(0,1fr) 116px}.executive-comparison-view .exec-meta-gauge-wrap{width:116px}.executive-comparison-view .exec-meta-gauge{width:116px;height:95px}}
+
+
+/* V26 - escala legível de origem ajustada e novo IRL semicircular; somente Comparação */
+.executive-comparison-view .exec-chart-shell{min-width:0;margin-top:5px}
+.executive-comparison-view .exec-scale-heading{color:#375A54;font-size:8px;font-weight:850;margin:0 3px 4px}
+.executive-comparison-view .exec-axis-note{display:flex;justify-content:space-between;gap:6px;flex-wrap:wrap;color:#647A75;font-size:7px;margin:0 3px 4px}
+.executive-comparison-view .exec-vchart{height:295px;gap:10px;margin-top:0}
+.executive-comparison-view .exec-block.has-just .exec-vchart{height:264px}
+.executive-comparison-view .exec-vplot{height:calc(100% - 43px);min-height:184px}
+.executive-comparison-view .exec-vbar{min-height:10px;width:min(43px,75%)}
+.executive-comparison-view .exec-axis-break{position:absolute;left:4px;bottom:1px;z-index:8;color:#395B54;font-size:17px;font-weight:900;line-height:1}
+.executive-comparison-view .exec-label{z-index:12;max-width:120%;font-size:8.7px;padding:4px 5px}
+.executive-comparison-view .exec-label.real{z-index:13}
+.executive-comparison-view .exec-target-marker{z-index:8;left:8%;right:8%}
+.executive-comparison-view .exec-irl-main{height:225px;align-items:center}
+.executive-comparison-view .exec-block.has-just .exec-irl-main{height:205px}
+.executive-comparison-view .exec-irl-svg.exec-irl-v26{width:min(100%,270px);height:180px}
+.executive-comparison-view .exec-irl-mini svg.exec-irl-mini-v26{width:53px;height:39px;max-width:100%}
+.executive-comparison-view .exec-irl-general-class{margin:-8px 0 13px}
+
+
+.exec-modal-footer{display:flex;justify-content:flex-end;padding:10px 13px 13px;border-top:1px solid #E3ECE9}
+.exec-modal-footer-close{border:1px solid #C9DCD7;border-radius:7px;background:#fff;color:#005852;padding:8px 16px;font-size:10px;font-weight:800;cursor:pointer}
+.exec-modal-footer-close:hover{background:#EAF7F4}
+.table-just-not-required{color:#9BA9A5;font-weight:700;font-size:10px}
+
+/* V27: justificativas na Tabelas e rótulos de meta/realizado */
+.table-just-cell{white-space:nowrap;text-align:center;min-width:94px}
+.table-just-action{border:1px solid #A9D9D0;background:#EAF7F4;color:#005852;border-radius:7px;padding:5px 8px;font-size:9px;font-weight:800;cursor:pointer;white-space:nowrap}
+.table-just-action:hover{background:#D7F2EC;border-color:#009B91}
+.executive-comparison-view .exec-target-marker{z-index:10}
+.executive-comparison-view .exec-label.meta{color:#465A56;background:#F5F8F7;border:1px solid #C7D6D2;font-size:7.6px;font-weight:800;min-width:0;padding:2px 4px}
+.executive-comparison-view .exec-label.meta b{font-size:6.5px;color:#526761}
+.executive-comparison-view .exec-label.real{font-size:8.7px}
+.executive-comparison-view .exec-label.v27-meta-above{transform:translate(-50%,0)}
+.executive-comparison-view .exec-label.v27-meta-below{transform:translate(-50%,-100%)}
+.executive-comparison-view .exec-label.v27-real-inside{transform:translate(-50%,0)}
+.executive-comparison-view .exec-label.v27-real-outside{transform:translate(-50%,0)}
+.executive-comparison-view .exec-label.v27-meta-above,.executive-comparison-view .exec-label.v27-meta-below{z-index:14}
+.executive-comparison-view .exec-label.v27-real-outside{z-index:15}
+
+
+/* V29 — Gestão exclusiva na página Tabelas, consulta nas demais. */
+.table-just-status-cell{text-align:center;white-space:nowrap;min-width:95px}
+.table-just-badge{display:inline-block;padding:4px 8px;border-radius:7px;font-size:9px;font-weight:900}
+.table-just-badge.pending{background:#FCE5E3;border:1px solid #EAB5B1;color:#B82724}
+.table-just-badge.saved{background:#DCF4EB;border:1px solid #A4DACA;color:#006B61}
+.table-just-toolbar{margin-left:auto}
+.table-just-management{display:none;text-align:center;white-space:nowrap;min-width:170px}
+#view-tables table.show-just-actions .table-just-management{display:table-cell}
+#view-tables .table-just-toolbar .toggle-just-management{border:1px solid #A8DAD1;background:#fff;color:#005852;border-radius:7px;padding:6px 10px;font-size:9px;font-weight:800;cursor:pointer}
+#view-tables .table-just-toolbar .toggle-just-management:hover{background:#EAF7F4}
+.table-just-row-actions{display:flex;justify-content:center;gap:5px}
+.table-just-row-actions button{border:1px solid #B8DBD6;background:#EAF7F4;color:#005852;border-radius:6px;padding:5px 7px;font-size:8px;font-weight:800;cursor:pointer}
+.table-just-row-actions button.delete{border-color:#ECC0BA;background:#FDEDEB;color:#AB3028}
+.table-just-readonly{border:0;background:transparent;color:#006D66;text-decoration:underline;cursor:pointer;font-size:9px;font-weight:800;padding:3px}
+.table-just-readonly:disabled{cursor:default;text-decoration:none;color:#9BA9A5}
+.exec-just-line button{border:0;background:transparent;cursor:pointer;color:#31534D;text-align:left;font:inherit;padding:0;line-height:inherit}
+.exec-readonly-text{white-space:pre-wrap;overflow-wrap:anywhere;background:#F4F8F7;border:1px solid #E0EBE8;border-radius:8px;padding:12px;font-size:11px;line-height:1.5}
+.exec-just-view-row{border-bottom:1px solid #E8EFED;padding:8px 0}
+.exec-just-view-row:last-child{border-bottom:0}
+.exec-just-view-row h4{font-size:10px;margin:0 0 5px;color:#005852}
+
+
+/* V30: Escala CSS e cálculo JS compartilham altura de plot; paleta idêntica ao PDF. */
+.executive-comparison-view .exec-vchart{height:auto!important;min-height:285px!important;align-items:stretch!important;gap:10px!important}
+.executive-comparison-view .exec-block.has-just .exec-vchart{min-height:285px!important}
+.executive-comparison-view .exec-vcol{min-width:0!important}
+.executive-comparison-view .exec-vplot{height:226px!important;min-height:226px!important;flex:none!important;overflow:visible!important}
+.executive-comparison-view .exec-vbar.met{background:linear-gradient(180deg,#17BFB1,#009B91)!important}
+.executive-comparison-view .exec-vbar.missed{background:linear-gradient(180deg,#FFBD5A,#F5AA41)!important}
+.executive-comparison-view .exec-label.meta{font-size:7.2px!important;color:#35534D!important;border-color:#AFCFC9!important;background:#FFFFFF!important;padding:2px 3px!important;z-index:21!important;white-space:nowrap!important}
+.executive-comparison-view .exec-label.meta b{font-size:6.3px!important;color:#345650!important}
+.executive-comparison-view .exec-label.real{font-size:8.8px!important;color:#005852!important;background:#fff!important;z-index:22!important}
+.executive-comparison-view .exec-label.real.missed{color:#A35C00!important}
+.executive-comparison-view .exec-target-marker{z-index:15!important}
+.executive-comparison-view .exec-label.collision.real{left:72%!important}
+.executive-comparison-view .exec-label.collision.meta{left:29%!important}
+.exec-modal-footer{position:sticky;bottom:0;background:#fff;z-index:5;gap:10px;align-items:center}
+.exec-modal-footer .exec-save-sticky{padding:9px 16px;font-size:10px;display:inline-flex;align-items:center;justify-content:center}
+.exec-modal-footer .exec-save-sticky:disabled{opacity:.6;cursor:wait}
+.exec-save-feedback{color:#006E65;font-size:9px;font-weight:800;margin-right:auto}
+
+
+/* V31: formulário de gestão só na Tabelas; botão de salvar explícito e persistente. */
+.exec-just-editor-footer{display:flex!important;justify-content:space-between;align-items:center;gap:12px;margin-top:10px}
+#execJustInlineSave{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 auto;background:#005852;color:#fff;border:0;border-radius:8px;padding:10px 17px;font-size:11px;font-weight:850;cursor:pointer;box-shadow:0 3px 9px rgba(0,88,82,.16)}
+#execJustInlineSave:hover{background:#009B91}
+.exec-modal-footer{display:flex;position:sticky;bottom:0;background:#fff;z-index:8}
+.exec-modal-footer #execJustModalFooterSave{background:#005852;color:#fff;border:0;border-radius:8px}
+
+.exec-tolerance-rule{font-size:7px;white-space:nowrap;color:#526D65;font-weight:700}
+
+/* V32 - status de justificativa consultável e prévia sem mostrar ações */
+.table-just-preview{display:flex;flex-direction:column;align-items:center;gap:4px;max-width:255px;margin:auto}
+.table-just-open{cursor:pointer;border:0;font:inherit}
+.table-just-snippet{display:block;max-width:250px;white-space:normal;text-align:left;line-height:1.32;font-size:9px;color:#31534d;background:#F0F8F6;border:1px solid #D7EAE5;border-radius:5px;padding:5px 7px;cursor:pointer;overflow-wrap:anywhere}
+.table-just-snippet:hover{background:#E3F3EF;color:#005852}
+.table-just-status-cell{min-width:166px;max-width:255px}
 </style>
 </head>
 
-<body class="auth-pending">
-<div id="loginScreen" class="login-screen">
-  <div class="login-card">
-    <div class="login-brand">
-      <h1>Análise - Superintendência</h1>
-      <p>Acesso à plataforma de desempenho regional</p>
-    </div>
-
-    <form id="loginForm" class="login-form">
-      <div class="login-field">
-        <label for="loginUsuario">Usuário</label>
-        <input id="loginUsuario" type="text" autocomplete="username" placeholder="admin ou oper" required>
-      </div>
-
-      <div class="login-field">
-        <label for="loginSenha">Senha</label>
-        <input id="loginSenha" type="password" autocomplete="current-password" required>
-      </div>
-
-      <button id="loginButton" class="login-button" type="submit">Entrar</button>
-      <div id="loginError" class="login-error"></div>
-    </form>
-  </div>
-</div>
-
+<body>
 <div class="app">
 
 <aside class="sidebar">
-  <button id="sidebarToggle" class="sidebar-toggle" type="button" title="Recolher ou expandir menu">‹</button>
   <div class="side-brand">
     <div class="brand-copy">
       <strong>Análise -<br>Superintendência</strong>
@@ -1759,10 +1679,14 @@ body.access-operacional #view-evolution{
   </div>
 
   <div class="top-right">
-    <div class="export-wrap">
-      <a id="exportButton" class="export-button" href="Analise_Superintendencia_Agosto_2026.pptx" download>
+    <div class="export-wrap" style="display:flex;gap:8px">
+      <a id="onepageButton" class="export-button" href="Onepage_Comparacao_Regioes_Agosto_2026.pdf" download>
+        <svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"></path><path d="M14 2v6h6"></path><path d="M9 13h8"></path><path d="M9 17h8"></path></svg>
+        Onepage PDF
+      </a>
+      <a id="exportButton" class="export-button" href="javascript:void(0)">
         <svg viewBox="0 0 24 24"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 20h14"></path></svg>
-        Exportar PowerPoint
+        Gerar PowerPoint
       </a>
     </div>
 
@@ -1777,14 +1701,9 @@ body.access-operacional #view-evolution{
     <div class="user-box">
       <div class="avatar">AS</div>
       <div class="user-copy">
-        <strong id="authUserName">Análise - Superintendência</strong>
-        <small id="authUserRole">Gestão Regional</small>
+        <strong>Análise - Superintendência⌄</strong>
+        <small>Gestão Regional</small>
       </div>
-    </div>
-
-    <div class="auth-user-actions">
-      <span id="authRoleBadge" class="auth-role-badge"></span>
-      <button id="logoutButton" class="logout-button" type="button">Sair</button>
     </div>
   </div>
 </header>
@@ -1859,15 +1778,24 @@ body.access-operacional #view-evolution{
     <div id="allRegionTables"></div>
   </section>
 
-  <section id="view-comparison" class="view-section">
-    <div class="page-head">
+  <section id="view-comparison" class="view-section executive-comparison-view">
+    <div class="page-head executive-comparison-head">
       <div class="page-title">
         <h1>Comparação entre Regiões</h1>
-        <p>Planejado x Real por regional, consolidado por blocos e com identificação das pendências.</p>
+        <p>Desempenho dos principais indicadores por região em relação às suas metas individuais.</p>
       </div>
+      <div class="comparison-period-pill">Agosto/2026</div>
     </div>
 
-    <div id="comparisonSections" class="comparison-v15"></div>
+    <div id="comparisonSummary" class="exec-summary"></div>
+
+    <div class="exec-legend">
+      <span><i class="exec-target-line"></i>Planejado (meta da região)</span>
+      <span><i class="exec-real-swatch met"></i>Realizado (meta atingida)</span>
+      <span><i class="exec-real-swatch missed"></i>Realizado (meta pendente)</span>
+    </div>
+
+    <div id="comparisonSections"></div>
   </section>
 
   <section id="view-evolution" class="view-section">
@@ -1882,6 +1810,7 @@ body.access-operacional #view-evolution{
           <label>Regiões</label>
           <button id="evolutionRegionToggle" class="region-toggle" type="button">Selecionar regiões</button>
           <div id="evolutionRegionMenu" class="region-menu"></div>
+          <small class="filter-hint">Clique para expandir e marcar as regiões desejadas.</small>
         </div>
 
         <div class="filter">
@@ -1919,11 +1848,30 @@ body.access-operacional #view-evolution{
 </div>
 </div>
 
+<div id="execJustModalBg" class="exec-modal-bg" role="dialog" aria-modal="true" aria-labelledby="execJustModalTitle">
+  <div class="exec-modal">
+    <div class="exec-modal-head">
+      <h3 id="execJustModalTitle">Justificativas</h3>
+      <button id="execJustModalClose" class="exec-modal-close" type="button" aria-label="Fechar justificativas">×</button>
+    </div>
+    <div id="execJustModalBody" class="exec-modal-body"></div>
+    <div class="exec-modal-footer"><button id="execJustModalFooterSave" class="exec-save exec-save-sticky" type="button" style="display:none">Salvar justificativa</button><span id="execJustModalSaveStatus" class="exec-save-feedback" aria-live="polite"></span><button id="execJustModalFooterClose" class="exec-modal-footer-close" type="button">Fechar</button></div>
+  </div>
+</div>
+
 <script>
 const DATA = [{"Região":"Baixada","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":7.673,"Realizado":8.792,"Pontos":0.9999999999999998,"Peso":0.2,"Score":2.0,"Avanço":1.145836048481689,"Desempenho":"↓","Mês Anterior":1.21929227628445,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":87.1411376098007,"Realizado":88.52531601999998,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.015884327978335,"Desempenho":"↑","Mês Anterior":0.9988674044061887,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Gerência","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":43.29742913,"Realizado":45.80733185,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.057968862596069,"Desempenho":"↑","Mês Anterior":1.025574396711832,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Gerência","Blocos":null,"Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.01,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.01,"Desempenho":"↑","Mês Anterior":0.97,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.00989898989899,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":22.4830597837,"Realizado":23.90238863000002,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.063128811645514,"Desempenho":"↓","Mês Anterior":1.161521499448732,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.0973,"Realizado":0.0975,"Pontos":0.5,"Peso":0.15,"Score":0.75,"Avanço":0.9979487179487179,"Desempenho":"↑","Mês Anterior":0.9938775510204081,"Eficiência":"⚠️"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.11,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":2.102,"Realizado":2.775,"Pontos":0.996,"Peso":0.2,"Score":1.992,"Avanço":1.320171265461465,"Desempenho":"↑","Mês Anterior":1.288634996993385,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":1.0,"Eficiência":"❌"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.00989898989899,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.831,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.8793650793650793,"Desempenho":"↓","Mês Anterior":0.9682539682539684,"Eficiência":"❌"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":20.82865792250001,"Realizado":22.33654138000002,"Pontos":0.996,"Peso":0.15,"Score":1.494,"Avanço":1.0723946527477,"Desempenho":"↓","Mês Anterior":1.16100278551532,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":6933.0,"Realizado":8974.0,"Pontos":0.996,"Peso":0.1,"Score":0.9960000000000001,"Avanço":1.294389153324679,"Desempenho":"↑","Mês Anterior":1.166363486026129,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":73537.5795238095,"Realizado":73413.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9983059066586606,"Desempenho":"↓","Mês Anterior":1.031867180786306,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.04,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.04,"Desempenho":"↑","Mês Anterior":1.01,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":13.28720918,"Realizado":12.77760789,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9616472290684595,"Desempenho":"↓","Mês Anterior":0.9754605041251119,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":18.00634155,"Realizado":20.2174521,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.122796212870904,"Desempenho":"↑","Mês Anterior":1.071590549574799,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.076,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":5.571,"Realizado":6.013,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.0793394363669,"Desempenho":"↓","Mês Anterior":1.191933570581257,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":0.0,"Eficiência":"❌"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"=","Mês Anterior":1.0,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.829,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.8772486772486773,"Desempenho":"↓","Mês Anterior":0.9724867724867726,"Eficiência":"❌"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":11791.0,"Realizado":12782.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.084047154609448,"Desempenho":"↓","Mês Anterior":1.094612145302845,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":56.94,"Realizado":69.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.211801896733404,"Desempenho":"↑","Mês Anterior":1.210526315789474,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.14,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.14,"Desempenho":"↑","Mês Anterior":1.05,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":48.74538965980069,"Realizado":49.57228812999999,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":1.0169636241698,"Desempenho":"↑","Mês Anterior":0.9761609394770745,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":8.68616245,"Realizado":9.11642608,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":1.049534375217678,"Desempenho":"↑","Mês Anterior":0.99498248630472,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.09,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":6446.042105263158,"Realizado":11266.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.747739126742808,"Desempenho":"↓","Mês Anterior":1.867134124415678,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.0973,"Realizado":0.0975,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":0.9979487179487179,"Desempenho":"↑","Mês Anterior":0.9938775510204081,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Leitura","Blocos":null,"Indicador":"ERRO DE LEITURA","Planejado":1949.05,"Realizado":1755.0,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.110569800569801,"Desempenho":"↓","Mês Anterior":1.123853211009174,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Leitura","Blocos":null,"Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.8475561132452264,"Realizado":0.8734,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.030492242756434,"Desempenho":"↓","Mês Anterior":1.032208224387925,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Construção","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Construção","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":0.955,"Realizado":1.075,"Pontos":0.9999999999999998,"Peso":0.2,"Score":2.0,"Avanço":1.12565445026178,"Desempenho":"↓","Mês Anterior":1.257861635220126,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Construção","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":25.10853877,"Realizado":26.17542,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.042490773348974,"Desempenho":"↓","Mês Anterior":1.05721991208813,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Construção","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":2.37334439,"Realizado":2.39390763,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.008664246152662,"Desempenho":"↑","Mês Anterior":1.008190342559265,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Construção","Blocos":null,"Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":0.76,"Pontos":0.0,"Peso":0.1,"Score":0.0,"Avanço":0.76,"Desempenho":"=","Mês Anterior":0.76,"Eficiência":"❌"},{"Região":"Baixada","Coordenação":"Construção","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL (SLA)","Planejado":0.945,"Realizado":0.976,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.032804232804233,"Desempenho":"=","Mês Anterior":1.032804232804233,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Construção","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":4299.0,"Realizado":4835.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.12468015817632,"Desempenho":"↓","Mês Anterior":1.202492211838006,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":6.927,"Realizado":11.36,"Pontos":0.9999999999999998,"Peso":0.2,"Score":2.0,"Avanço":1.639959578461094,"Desempenho":"↓","Mês Anterior":1.646556423768853,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":61.87176086885233,"Realizado":61.26255652000001,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9901537577030719,"Desempenho":"↓","Mês Anterior":1.026160849710069,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":26.43898492,"Realizado":27.5909095,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.043569168161544,"Desempenho":"↑","Mês Anterior":1.038078960079754,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":null,"Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.01,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.01,"Desempenho":"↑","Mês Anterior":0.95,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.00979797979798,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":35.2958883448,"Realizado":42.99937718999993,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.218254567499357,"Desempenho":"↓","Mês Anterior":1.291029900332226,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.0389,"Realizado":0.0366,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.062841530054645,"Desempenho":"↑","Mês Anterior":1.059782608695652,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.51,"Pontos":0.8,"Peso":0.1,"Score":0.8000000000000002,"Avanço":"TOLERÁVEL","Desempenho":null,"Mês Anterior":"TOLERÁVEL","Eficiência":"⚠️"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":5.559,"Realizado":9.263,"Pontos":0.996,"Peso":0.2,"Score":1.992,"Avanço":1.666306889728368,"Desempenho":"↑","Mês Anterior":1.666141022752872,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":0.0,"Eficiência":"❌"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.01,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.861,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.9111111111111111,"Desempenho":"↓","Mês Anterior":1.004232804232804,"Eficiência":"❌"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":34.332549615,"Realizado":41.34510059999992,"Pontos":0.996,"Peso":0.15,"Score":1.494,"Avanço":1.204253720263645,"Desempenho":"↓","Mês Anterior":1.297196892941574,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":49936.0,"Realizado":68908.0,"Pontos":0.996,"Peso":0.1,"Score":0.9960000000000001,"Avanço":1.379926305671259,"Desempenho":"↑","Mês Anterior":1.314659135688953,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":81869.09285714284,"Realizado":81712.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9980811701747208,"Desempenho":"↓","Mês Anterior":1.011739713743197,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.08,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.08,"Desempenho":"↑","Mês Anterior":0.95,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":38.48520819,"Realizado":39.63261863,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.029814323319632,"Desempenho":"↓","Mês Anterior":1.039448604472812,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":15.552115,"Realizado":17.03973369,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.095653786639309,"Desempenho":"↓","Mês Anterior":1.101978490272554,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":1.368,"Realizado":2.097,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.532894736842105,"Desempenho":"↓","Mês Anterior":1.56484962406015,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":0.0,"Eficiência":"❌"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.005858585858586,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.848,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.8973544973544973,"Desempenho":"↓","Mês Anterior":0.9693121693121693,"Eficiência":"❌"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":459.0,"Realizado":504.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.098039215686275,"Desempenho":"↑","Mês Anterior":1.072176684881603,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":68.08,"Realizado":88.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.292596944770858,"Desempenho":"↑","Mês Anterior":1.264705882352941,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":0.97,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.97,"Desempenho":"↑","Mês Anterior":0.96,"Eficiência":"❌"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":23.38655267885232,"Realizado":21.62993789,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":0.9248878270784748,"Desempenho":"↓","Mês Anterior":1.003794845713434,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":2.47807781,"Realizado":2.544589770000001,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":1.026840141875933,"Desempenho":"↑","Mês Anterior":0.9377046999019644,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.023,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":8297.557894736841,"Realizado":12480.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.504056995844053,"Desempenho":"↓","Mês Anterior":1.654189944134078,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.0389,"Realizado":0.0366,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.062841530054645,"Desempenho":"↑","Mês Anterior":1.059782608695652,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":null,"Indicador":"ERRO DE LEITURA","Planejado":1475.6,"Realizado":1430.0,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.031888111888112,"Desempenho":"↓","Mês Anterior":1.036163522012579,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":null,"Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.9247371419449116,"Realizado":0.9586,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.036618901219722,"Desempenho":"↓","Mês Anterior":1.036808487604201,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":6.264,"Realizado":7.685,"Pontos":0.9999999999999998,"Peso":0.2,"Score":2.0,"Avanço":1.226851851851852,"Desempenho":"↑","Mês Anterior":1.209335800945918,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":42.17634903064397,"Realizado":37.79826832999999,"Pontos":0.0,"Peso":0.1,"Score":0.0,"Avanço":0.8961958348394973,"Desempenho":"↓","Mês Anterior":0.9332948551833936,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Gerência","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":33.55421163000001,"Realizado":35.95156248000001,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.071447092139592,"Desempenho":"↑","Mês Anterior":1.046635800376746,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Gerência","Blocos":null,"Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.06,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.06,"Desempenho":"↑","Mês Anterior":1.03,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.007373737373737,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":29.69100013310001,"Realizado":34.37097739999998,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.157622755916621,"Desempenho":"↓","Mês Anterior":1.243352135374698,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.07745333741749204,"Realizado":0.0772,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.003281572765441,"Desempenho":"↓","Mês Anterior":1.003875968992248,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.1,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":5.15,"Realizado":6.172,"Pontos":0.996,"Peso":0.2,"Score":1.992,"Avanço":1.198446601941747,"Desempenho":"↓","Mês Anterior":1.19990091652217,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":1.0,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Varejo","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.00989898989899,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.82,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.8677248677248677,"Desempenho":"↓","Mês Anterior":0.9841269841269842,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":28.70217885750001,"Realizado":32.90083578999997,"Pontos":0.996,"Peso":0.15,"Score":1.494,"Avanço":1.146283561026686,"Desempenho":"↓","Mês Anterior":1.243122977346278,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":26.127,"Realizado":30.472,"Pontos":0.996,"Peso":0.1,"Score":0.9960000000000001,"Avanço":1.16630305813909,"Desempenho":"↑","Mês Anterior":1.133731024351155,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":96279.96142857139,"Realizado":92917.0,"Pontos":0.0,"Peso":0.1,"Score":0.0,"Avanço":0.9650710139610273,"Desempenho":"↓","Mês Anterior":0.9867528062183856,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.0,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.0,"Desempenho":"↑","Mês Anterior":0.88,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":29.97058684000001,"Realizado":26.20038878999999,"Pontos":0.0,"Peso":0.1,"Score":0.0,"Avanço":0.8742033958117847,"Desempenho":"↑","Mês Anterior":0.82983232380027,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Varejo","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":19.94001819,"Realizado":21.56331046000001,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.081408765755996,"Desempenho":"↑","Mês Anterior":1.071590549574799,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.31,"Pontos":0.9,"Peso":0.1,"Score":0.9000000000000001,"Avanço":"ACEITÁVEL","Desempenho":null,"Mês Anterior":"ACEITÁVEL","Eficiência":"⚠️"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":1.114,"Realizado":1.396,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.253141831238779,"Desempenho":"↓","Mês Anterior":1.25544794188862,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":1.0,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↑","Mês Anterior":0.9670707070707071,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.869,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.9195767195767196,"Desempenho":"↓","Mês Anterior":0.9693121693121693,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":773.0,"Realizado":973.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.258732212160414,"Desempenho":"↑","Mês Anterior":1.014654002713704,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":77.77,"Realizado":98.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.26012601260126,"Desempenho":"↑","Mês Anterior":1.227848101265823,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.38,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.38,"Desempenho":"↑","Mês Anterior":1.32,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":12.20576219064396,"Realizado":11.59787954,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":0.9501970756803766,"Desempenho":"↓","Mês Anterior":1.025478187675748,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":0.7066086899999999,"Realizado":0.7981437399999999,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":1.129541359022913,"Desempenho":"↑","Mês Anterior":1.017246132228677,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Leste","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":9130.968421052632,"Realizado":9948.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.089479181317022,"Desempenho":"↓","Mês Anterior":1.193044802639929,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.07745333741749204,"Realizado":0.0772,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.003281572765441,"Desempenho":"↓","Mês Anterior":1.003875968992248,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Leitura","Blocos":null,"Indicador":"ERRO DE LEITURA","Planejado":1694.05,"Realizado":1862.0,"Pontos":0.0,"Peso":0.25,"Score":0.0,"Avanço":0.9098012889366272,"Desempenho":"↑","Mês Anterior":0.891459074733096,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Leitura","Blocos":null,"Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.966305287043931,"Realizado":0.9543,"Pontos":0.5,"Peso":0.2,"Score":1.0,"Avanço":0.9875760929750711,"Desempenho":"↑","Mês Anterior":0.9846838455966056,"Eficiência":"⚠️"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":5.034,"Realizado":6.243,"Pontos":0.9999999999999998,"Peso":0.2,"Score":2.0,"Avanço":1.240166865315852,"Desempenho":"↓","Mês Anterior":1.316751815004033,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":40.44315118879463,"Realizado":38.07854169,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9415325109619604,"Desempenho":"↓","Mês Anterior":0.9695732127970179,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":39.17636415,"Realizado":39.99754759000002,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.020961195808162,"Desempenho":"↓","Mês Anterior":1.030242813079116,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":null,"Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.06,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.06,"Desempenho":"↓","Mês Anterior":1.18,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.008484848484849,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":40.1615099106,"Realizado":42.69949763999999,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.063194529664089,"Desempenho":"↓","Mês Anterior":1.151860744297719,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.08420022441311731,"Realizado":0.0824,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.021847383654336,"Desempenho":"↑","Mês Anterior":1.008373205741627,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.118,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":2.337,"Realizado":2.761,"Pontos":0.996,"Peso":0.2,"Score":1.992,"Avanço":1.18142918271288,"Desempenho":"↓","Mês Anterior":1.252805670407561,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":1.0,"Eficiência":"❌"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.009494949494949,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.795,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.8412698412698414,"Desempenho":"↓","Mês Anterior":0.980952380952381,"Eficiência":"❌"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":38.5809323666,"Realizado":41.11561766,"Pontos":0.996,"Peso":0.15,"Score":1.494,"Avanço":1.065697875554565,"Desempenho":"↓","Mês Anterior":1.149006622516556,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":11057.0,"Realizado":14807.0,"Pontos":0.996,"Peso":0.1,"Score":0.9960000000000001,"Avanço":1.33915166862621,"Desempenho":"↑","Mês Anterior":1.253388554216867,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":120592.3857142857,"Realizado":120878.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.002368427193994,"Desempenho":"↓","Mês Anterior":1.023890558035316,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.3,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.3,"Desempenho":"↑","Mês Anterior":1.23,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":21.52009553,"Realizado":19.07831196,"Pontos":0.0,"Peso":0.1,"Score":0.0,"Avanço":0.886534724411607,"Desempenho":"↓","Mês Anterior":0.941489638926297,"Eficiência":"❌"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":24.4026287,"Realizado":24.87373095000001,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.019305389423067,"Desempenho":"↓","Mês Anterior":1.039846257752098,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.175,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":2.696,"Realizado":3.482,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.291543026706232,"Desempenho":"↓","Mês Anterior":1.37037037037037,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":1.0,"Eficiência":"❌"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↑","Mês Anterior":0.992020202020202,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.885,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.9365079365079365,"Desempenho":"↓","Mês Anterior":0.980952380952381,"Eficiência":"❌"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":4819.0,"Realizado":6508.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.35048765304005,"Desempenho":"↑","Mês Anterior":1.139008501711384,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":81.47999999999999,"Realizado":94.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.15365733922435,"Desempenho":"↑","Mês Anterior":1.148148148148148,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.22,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.22,"Desempenho":"↑","Mês Anterior":1.13,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":18.92305565879463,"Realizado":19.00022973,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":1.00407830915878,"Desempenho":"↑","Mês Anterior":1.000380348177438,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":3.39136874,"Realizado":3.547896730000001,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":1.046154812997421,"Desempenho":"↑","Mês Anterior":1.033003300330033,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.03,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":12959.95789473684,"Realizado":15246.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.176392710827521,"Desempenho":"↓","Mês Anterior":1.196280067960297,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.08420022441311731,"Realizado":0.0824,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.021847383654336,"Desempenho":"↑","Mês Anterior":1.008373205741627,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Leitura","Blocos":null,"Indicador":"ERRO DE LEITURA","Planejado":1900.6,"Realizado":1594.0,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.192346298619824,"Desempenho":"↑","Mês Anterior":1.104688503532434,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Leitura","Blocos":null,"Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.9647665524392375,"Realizado":0.975,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.01060717490142,"Desempenho":"↑","Mês Anterior":1.009224709784411,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":1.012,"Realizado":1.442,"Pontos":0.9999999999999998,"Peso":0.2,"Score":2.0,"Avanço":1.424901185770751,"Desempenho":"↑","Mês Anterior":1.333333333333333,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":19.08879349190838,"Realizado":17.44736619000001,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9140109456051183,"Desempenho":"↓","Mês Anterior":0.942597224716346,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Gerência","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":21.57834359999999,"Realizado":23.02064992,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.066840455724322,"Desempenho":"↑","Mês Anterior":1.03443865158358,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Gerência","Blocos":null,"Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.1,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.1,"Desempenho":"↑","Mês Anterior":1.05,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.01010101010101,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":24.1096619048,"Realizado":23.35258892999996,"Pontos":0.0,"Peso":0.2,"Score":0.0,"Avanço":0.968598772650175,"Desempenho":"↓","Mês Anterior":1.026502784712886,"Eficiência":"❌"},{"Região":"Vale","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.01634230235209833,"Realizado":0.016,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.021393897006145,"Desempenho":"↑","Mês Anterior":1.0,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.145,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":1.012,"Realizado":1.442,"Pontos":0.996,"Peso":0.2,"Score":1.992,"Avanço":1.424901185770751,"Desempenho":"↑","Mês Anterior":1.333333333333333,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":null,"Indicador":null,"Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":null,"Eficiência":null},{"Região":"Vale","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.01010101010101,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.829,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.8772486772486773,"Desempenho":"↓","Mês Anterior":0.97989417989418,"Eficiência":"❌"},{"Região":"Vale","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":24.1096619048,"Realizado":23.35258892999996,"Pontos":0.0,"Peso":0.15,"Score":0.0,"Avanço":0.968598772650175,"Desempenho":"↓","Mês Anterior":1.020478487742444,"Eficiência":"❌"},{"Região":"Vale","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":3756.0,"Realizado":4536.0,"Pontos":0.996,"Peso":0.1,"Score":0.9960000000000001,"Avanço":1.207667731629393,"Desempenho":"↑","Mês Anterior":1.096460416103756,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":80840.57582531241,"Realizado":86321.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.067792987849693,"Desempenho":"↑","Mês Anterior":1.066664634946956,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.1,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.1,"Desempenho":"↑","Mês Anterior":1.05,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":19.08879349190838,"Realizado":17.44736619000001,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9140109456051183,"Desempenho":"↓","Mês Anterior":0.9426229508196721,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":12.4512108,"Realizado":14.05117898,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.128499003486472,"Desempenho":"↑","Mês Anterior":1.06784140969163,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.067,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Vale","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":11380.58947368421,"Realizado":14435.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.268387725730607,"Desempenho":"↓","Mês Anterior":1.376883910386965,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.01634230235209833,"Realizado":0.016,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.021393897006145,"Desempenho":"↑","Mês Anterior":1.0,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Leitura","Blocos":null,"Indicador":"ERRO DE LEITURA","Planejado":1258.85,"Realizado":1295.0,"Pontos":0.2,"Peso":0.25,"Score":0.5,"Avanço":0.9720849420849422,"Desempenho":"↓","Mês Anterior":1.020664869721474,"Eficiência":"❌"},{"Região":"Vale","Coordenação":"Leitura","Blocos":null,"Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.9926116695927387,"Realizado":0.9919275498112272,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":0.9993107880932004,"Desempenho":"↑","Mês Anterior":0.9939552689905299,"Eficiência":"✅"}];
-const COMPARISON_DATA = {"irl":[{"bloco":"Segurança","indicador":"IRL","indicador_original":"IRL","indicador_chave":"IRL","tipo_agregacao":"media","unidade":"absoluto","irl":true,"regional":[{"regiao":"Baixada","planejado":0.0,"real":0.069,"diferenca_pct":null,"atingiu_meta":true,"classificacao_irl":"Seguro","fontes":[{"regiao":"Baixada","coordenacao":"Varejo","indicador":"IRL","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"IRL","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Leitura","indicador":"IRL","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Construção","indicador":"IRL","eficiencia":"✅"}]},{"regiao":"Centro Sul","planejado":0.0,"real":0.17766666666666667,"diferenca_pct":null,"atingiu_meta":false,"classificacao_irl":"Seguro","fontes":[{"regiao":"Centro Sul","coordenacao":"Varejo","indicador":"IRL","eficiencia":"⚠️"},{"regiao":"Centro Sul","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"IRL","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Leitura","indicador":"IRL","eficiencia":"✅"}]},{"regiao":"Leste","planejado":0.0,"real":0.1366666666666667,"diferenca_pct":null,"atingiu_meta":false,"classificacao_irl":"Seguro","fontes":[{"regiao":"Leste","coordenacao":"Varejo","indicador":"IRL","eficiencia":"✅"},{"regiao":"Leste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"IRL","eficiencia":"⚠️"},{"regiao":"Leste","coordenacao":"Leitura","indicador":"IRL","eficiencia":"✅"}]},{"regiao":"Oeste","planejado":0.0,"real":0.10766666666666665,"diferenca_pct":null,"atingiu_meta":true,"classificacao_irl":"Seguro","fontes":[{"regiao":"Oeste","coordenacao":"Varejo","indicador":"IRL","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"IRL","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Leitura","indicador":"IRL","eficiencia":"✅"}]},{"regiao":"Vale","planejado":0.0,"real":0.106,"diferenca_pct":null,"atingiu_meta":true,"classificacao_irl":"Seguro","fontes":[{"regiao":"Vale","coordenacao":"Varejo","indicador":"IRL","eficiencia":"✅"},{"regiao":"Vale","coordenacao":"Leitura","indicador":"IRL","eficiencia":"✅"}]}],"geral":{"planejado":0.0,"real":0.11939999999999999,"diferenca_pct":null,"atingiu_meta":false,"classificacao_irl":"Seguro"}}],"secoes":[{"bloco":"Perdas","indicadores":[{"bloco":"Perdas","indicador":"IEN (GWh)","indicador_original":"IEN (GWh)","indicador_chave":"IEN","tipo_agregacao":"soma","unidade":"absoluto","irl":false,"regional":[{"regiao":"Baixada","planejado":16.4956,"real":18.849999999999998,"diferenca_pct":14.272897014961556,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Baixada","coordenacao":"Gerência","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Gerência","indicador":"CLIENTES NÃO LIDOS","eficiencia":"⚠️"},{"regiao":"Baixada","coordenacao":"Varejo","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Leitura","indicador":"CLIENTES NÃO LIDOS","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Construção","indicador":"IEN (GWh)","eficiencia":"✅"}]},{"regiao":"Centro Sul","planejado":13.931799999999999,"real":22.7932,"diferenca_pct":63.605564248697235,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Centro Sul","coordenacao":"Gerência","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Gerência","indicador":"CLIENTES NÃO LIDOS","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Varejo","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Leitura","indicador":"CLIENTES NÃO LIDOS","eficiencia":"✅"}]},{"regiao":"Leste","planejado":12.682906674834985,"real":15.407399999999999,"diferenca_pct":21.48161612330449,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Leste","coordenacao":"Gerência","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Leste","coordenacao":"Gerência","indicador":"CLIENTES NÃO LIDOS","eficiencia":"✅"},{"regiao":"Leste","coordenacao":"Varejo","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Leste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Leste","coordenacao":"Leitura","indicador":"CLIENTES NÃO LIDOS","eficiencia":"✅"}]},{"regiao":"Oeste","planejado":10.235400448826235,"real":12.6508,"diferenca_pct":23.598486090016692,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Oeste","coordenacao":"Gerência","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Gerência","indicador":"CLIENTES NÃO LIDOS","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Varejo","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Leitura","indicador":"CLIENTES NÃO LIDOS","eficiencia":"✅"}]},{"regiao":"Vale","planejado":2.0566846047041967,"real":2.916,"diferenca_pct":41.78158349269088,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Vale","coordenacao":"Gerência","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Vale","coordenacao":"Gerência","indicador":"CLIENTES NÃO LIDOS","eficiencia":"✅"},{"regiao":"Vale","coordenacao":"Varejo","indicador":"IEN (GWh)","eficiencia":"✅"},{"regiao":"Vale","coordenacao":"Leitura","indicador":"CLIENTES NÃO LIDOS","eficiencia":"✅"}]}],"geral":{"planejado":55.402391728365416,"real":72.61739999999999,"diferenca_pct":31.072680681438303,"atingiu_meta":false,"classificacao_irl":null}}]},{"bloco":"Cliente","indicadores":[{"bloco":"Cliente","indicador":"Atendimento no Prazo de Serviços Regulados","indicador_original":"Atendimento no Prazo de Serviços Regulados","indicador_chave":"ATENDIMENTO_PRAZO_REGULADOS","tipo_agregacao":"media","unidade":"percentual","irl":false,"regional":[{"regiao":"Baixada","planejado":0.9899999999999999,"real":0.9899999999999999,"diferenca_pct":0.0,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Baixada","coordenacao":"Gerência","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Varejo","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"}]},{"regiao":"Centro Sul","planejado":0.9899999999999999,"real":0.9899999999999999,"diferenca_pct":0.0,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Centro Sul","coordenacao":"Gerência","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Varejo","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"}]},{"regiao":"Leste","planejado":0.9899999999999999,"real":0.9899999999999999,"diferenca_pct":0.0,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Leste","coordenacao":"Gerência","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"},{"regiao":"Leste","coordenacao":"Varejo","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"},{"regiao":"Leste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"}]},{"regiao":"Oeste","planejado":0.9899999999999999,"real":0.9899999999999999,"diferenca_pct":0.0,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Oeste","coordenacao":"Gerência","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Varejo","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"}]},{"regiao":"Vale","planejado":0.99,"real":0.99,"diferenca_pct":0.0,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Vale","coordenacao":"Gerência","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"},{"regiao":"Vale","coordenacao":"Varejo","indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","eficiencia":"✅"}]}],"geral":{"planejado":0.9899999999999999,"real":0.9899999999999999,"diferenca_pct":0.0,"atingiu_meta":true,"classificacao_irl":null}}]},{"bloco":"Qualidade","indicadores":[{"bloco":"Qualidade","indicador":"IQG - Índice de Qualidade Geral","indicador_original":"IQG - Índice de Qualidade Geral","indicador_chave":"IQG","tipo_agregacao":"media","unidade":"percentual","irl":false,"regional":[{"regiao":"Baixada","planejado":0.945,"real":0.8786666666666667,"diferenca_pct":-7.019400352733678,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Baixada","coordenacao":"Varejo","indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","eficiencia":"❌"},{"regiao":"Baixada","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","eficiencia":"❌"},{"regiao":"Baixada","coordenacao":"Construção","indicador":"IQG - ÍNDICE DE QUALIDADE GERAL (SLA)","eficiencia":"✅"}]},{"regiao":"Centro Sul","planejado":0.945,"real":0.8545,"diferenca_pct":-9.576719576719569,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Centro Sul","coordenacao":"Varejo","indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","eficiencia":"❌"},{"regiao":"Centro Sul","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","eficiencia":"❌"}]},{"regiao":"Leste","planejado":0.945,"real":0.8445,"diferenca_pct":-10.634920634920627,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Leste","coordenacao":"Varejo","indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","eficiencia":"❌"},{"regiao":"Leste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","eficiencia":"❌"}]},{"regiao":"Oeste","planejado":0.945,"real":0.8400000000000001,"diferenca_pct":-11.111111111111098,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Oeste","coordenacao":"Varejo","indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","eficiencia":"❌"},{"regiao":"Oeste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","eficiencia":"❌"}]},{"regiao":"Vale","planejado":0.945,"real":0.829,"diferenca_pct":-12.275132275132275,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Vale","coordenacao":"Varejo","indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","eficiencia":"❌"}]}],"geral":{"planejado":0.945,"real":0.8493333333333334,"diferenca_pct":-10.123456790123447,"atingiu_meta":false,"classificacao_irl":null}}]},{"bloco":"Produt.","indicadores":[{"bloco":"Produt.","indicador":"Cumprimento do Plano Físico Perdas","indicador_original":"Cumprimento do Plano Físico Perdas","indicador_chave":"PLANO_FISICO_PERDAS","tipo_agregacao":"soma","unidade":"absoluto","irl":false,"regional":[{"regiao":"Baixada","planejado":23023.0,"real":26591.0,"diferenca_pct":15.49754593232854,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Baixada","coordenacao":"Varejo","indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Construção","indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","eficiencia":"✅"}]},{"regiao":"Centro Sul","planejado":50395.0,"real":69412.0,"diferenca_pct":37.73588649667626,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Centro Sul","coordenacao":"Varejo","indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","eficiencia":"✅"}]},{"regiao":"Leste","planejado":799.127,"real":1003.472,"diferenca_pct":25.57102938581728,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Leste","coordenacao":"Varejo","indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","eficiencia":"✅"},{"regiao":"Leste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","eficiencia":"✅"}]},{"regiao":"Oeste","planejado":15876.0,"real":21315.0,"diferenca_pct":34.25925925925926,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Oeste","coordenacao":"Varejo","indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","eficiencia":"✅"}]},{"regiao":"Vale","planejado":3756.0,"real":4536.0,"diferenca_pct":20.766773162939298,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Vale","coordenacao":"Varejo","indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","eficiencia":"✅"}]}],"geral":{"planejado":93849.127,"real":122857.472,"diferenca_pct":30.909552307289978,"atingiu_meta":true,"classificacao_irl":null}},{"bloco":"Produt.","indicador":"Cumprimento do Plano Físico Core","indicador_original":"Cumprimento do Plano Físico Core","indicador_chave":"PLANO_FISICO_CORE","tipo_agregacao":"soma","unidade":"absoluto","irl":false,"regional":[{"regiao":"Baixada","planejado":73594.5195238095,"real":73482.0,"diferenca_pct":-0.15289117251876513,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Baixada","coordenacao":"Varejo","indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","eficiencia":"✅"}]},{"regiao":"Centro Sul","planejado":81937.17285714284,"real":81800.0,"diferenca_pct":-0.16741224081772962,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Centro Sul","coordenacao":"Varejo","indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","eficiencia":"✅"}]},{"regiao":"Leste","planejado":96357.7314285714,"real":93015.0,"diferenca_pct":-3.469084814485606,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Leste","coordenacao":"Varejo","indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","eficiencia":"❌"},{"regiao":"Leste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","eficiencia":"✅"}]},{"regiao":"Oeste","planejado":120673.8657142857,"real":120972.0,"diferenca_pct":0.24705787284562702,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Oeste","coordenacao":"Varejo","indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","eficiencia":"✅"}]},{"regiao":"Vale","planejado":80840.57582531241,"real":86321.0,"diferenca_pct":6.779298784969304,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Vale","coordenacao":"Varejo","indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","eficiencia":"✅"}]}],"geral":{"planejado":453403.86534912186,"real":455590.0,"diferenca_pct":0.48216056764201043,"atingiu_meta":false,"classificacao_irl":null}}]},{"bloco":"Orçamento","indicadores":[{"bloco":"Orçamento","indicador":"AIS Realizado","indicador_original":"AIS Realizado","indicador_chave":"AIS_REALIZADO_RS","tipo_agregacao":"media","unidade":"percentual","irl":false,"regional":[{"regiao":"Baixada","planejado":1.0,"real":0.9875,"diferenca_pct":-1.2499999999999956,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Baixada","coordenacao":"Gerência","indicador":"AIS% REALIZADO R$","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Varejo","indicador":"AIS% REALIZADO R$","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"AIS% REALIZADO R$","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Construção","indicador":"AIS% REALIZADO R$","eficiencia":"❌"}]},{"regiao":"Centro Sul","planejado":1.0,"real":1.02,"diferenca_pct":2.0000000000000018,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Centro Sul","coordenacao":"Gerência","indicador":"AIS% REALIZADO R$","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Varejo","indicador":"AIS% REALIZADO R$","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"AIS% REALIZADO R$","eficiencia":"❌"}]},{"regiao":"Leste","planejado":1.0,"real":1.1466666666666667,"diferenca_pct":14.666666666666671,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Leste","coordenacao":"Gerência","indicador":"AIS% REALIZADO R$","eficiencia":"✅"},{"regiao":"Leste","coordenacao":"Varejo","indicador":"AIS% REALIZADO R$","eficiencia":"✅"},{"regiao":"Leste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"AIS% REALIZADO R$","eficiencia":"✅"}]},{"regiao":"Oeste","planejado":1.0,"real":1.1933333333333334,"diferenca_pct":19.333333333333336,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Oeste","coordenacao":"Gerência","indicador":"AIS% REALIZADO R$","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Varejo","indicador":"AIS% REALIZADO R$","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"AIS% REALIZADO R$","eficiencia":"✅"}]},{"regiao":"Vale","planejado":1.0,"real":1.1,"diferenca_pct":10.000000000000009,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Vale","coordenacao":"Gerência","indicador":"AIS% REALIZADO R$","eficiencia":"✅"},{"regiao":"Vale","coordenacao":"Varejo","indicador":"AIS% REALIZADO R$","eficiencia":"✅"}]}],"geral":{"planejado":1.0,"real":1.0895,"diferenca_pct":8.949999999999992,"atingiu_meta":false,"classificacao_irl":null}},{"bloco":"Orçamento","indicador":"CAPEX","indicador_original":"CAPEX","indicador_chave":"CAPEX","tipo_agregacao":"soma","unidade":"moeda_mm","irl":false,"regional":[{"regiao":"Baixada","planejado":174.2822752196014,"real":177.05063203999995,"diferenca_pct":1.5884327978334833,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Baixada","coordenacao":"Gerência","indicador":"CAPEX R$ MM","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Varejo","indicador":"CAPEX R$ MM","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"CAPEX R$ MM","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Construção","indicador":"CAPEX R$ MM","eficiencia":"✅"}]},{"regiao":"Centro Sul","planejado":123.74352173770464,"real":122.52511304000001,"diferenca_pct":-0.9846242296928123,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Centro Sul","coordenacao":"Gerência","indicador":"CAPEX R$ MM","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Varejo","indicador":"CAPEX R$ MM","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"CAPEX R$ MM","eficiencia":"✅"}]},{"regiao":"Leste","planejado":84.35269806128794,"real":75.59653665999998,"diferenca_pct":-10.380416516050277,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Leste","coordenacao":"Gerência","indicador":"CAPEX R$ MM","eficiencia":"❌"},{"regiao":"Leste","coordenacao":"Varejo","indicador":"CAPEX R$ MM","eficiencia":"❌"},{"regiao":"Leste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"CAPEX R$ MM","eficiencia":"✅"}]},{"regiao":"Oeste","planejado":80.88630237758926,"real":76.15708338,"diferenca_pct":-5.84674890380396,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Oeste","coordenacao":"Gerência","indicador":"CAPEX R$ MM","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Varejo","indicador":"CAPEX R$ MM","eficiencia":"❌"},{"regiao":"Oeste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"CAPEX R$ MM","eficiencia":"✅"}]},{"regiao":"Vale","planejado":38.17758698381676,"real":34.89473238000002,"diferenca_pct":-8.598905439488146,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Vale","coordenacao":"Gerência","indicador":"CAPEX R$ MM","eficiencia":"✅"},{"regiao":"Vale","coordenacao":"Varejo","indicador":"CAPEX R$ MM","eficiencia":"✅"}]}],"geral":{"planejado":501.44238437999996,"real":486.22409749999997,"diferenca_pct":-3.034902384411798,"atingiu_meta":false,"classificacao_irl":null}},{"bloco":"Orçamento","indicador":"OPEX","indicador_original":"OPEX","indicador_chave":"OPEX","tipo_agregacao":"soma","unidade":"moeda_mm","irl":false,"regional":[{"regiao":"Baixada","planejado":72.36327752,"real":77.53511766,"diferenca_pct":7.147050710314483,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Baixada","coordenacao":"Gerência","indicador":"OPEX R$ MM","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Varejo","indicador":"OPEX R$ MM","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"OPEX R$ MM","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Construção","indicador":"OPEX R$ MM","eficiencia":"✅"}]},{"regiao":"Centro Sul","planejado":44.46917773,"real":47.175232959999995,"diferenca_pct":6.085237839184118,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Centro Sul","coordenacao":"Gerência","indicador":"OPEX R$ MM","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Varejo","indicador":"OPEX R$ MM","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"OPEX R$ MM","eficiencia":"✅"}]},{"regiao":"Leste","planejado":54.20083851000001,"real":58.31301668000002,"diferenca_pct":7.586927219292583,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Leste","coordenacao":"Gerência","indicador":"OPEX R$ MM","eficiencia":"✅"},{"regiao":"Leste","coordenacao":"Varejo","indicador":"OPEX R$ MM","eficiencia":"✅"},{"regiao":"Leste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"OPEX R$ MM","eficiencia":"✅"}]},{"regiao":"Oeste","planejado":66.97036159,"real":68.41917527000003,"diferenca_pct":2.1633654733265852,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Oeste","coordenacao":"Gerência","indicador":"OPEX R$ MM","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Varejo","indicador":"OPEX R$ MM","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Projetos Especiais e Grandes Clientes","indicador":"OPEX R$ MM","eficiencia":"✅"}]},{"regiao":"Vale","planejado":34.02955439999999,"real":37.0718289,"diferenca_pct":8.9400950251644,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Vale","coordenacao":"Gerência","indicador":"OPEX R$ MM","eficiencia":"✅"},{"regiao":"Vale","coordenacao":"Varejo","indicador":"OPEX R$ MM","eficiencia":"✅"}]}],"geral":{"planejado":272.03320974999997,"real":288.51437147,"diferenca_pct":6.058510920466778,"atingiu_meta":true,"classificacao_irl":null}}]},{"bloco":"Leitura","indicadores":[{"bloco":"Leitura","indicador":"Erro de Leitura","indicador_original":"Erro de Leitura","indicador_chave":"ERRO_DE_LEITURA","tipo_agregacao":"soma","unidade":"absoluto","irl":false,"regional":[{"regiao":"Baixada","planejado":1949.05,"real":1755.0,"diferenca_pct":-9.95613247479541,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Baixada","coordenacao":"Leitura","indicador":"ERRO DE LEITURA","eficiencia":"✅"}]},{"regiao":"Centro Sul","planejado":1475.6,"real":1430.0,"diferenca_pct":-3.0902683654106746,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Centro Sul","coordenacao":"Leitura","indicador":"ERRO DE LEITURA","eficiencia":"✅"}]},{"regiao":"Leste","planejado":1694.05,"real":1862.0,"diferenca_pct":9.914111153743988,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Leste","coordenacao":"Leitura","indicador":"ERRO DE LEITURA","eficiencia":"❌"}]},{"regiao":"Oeste","planejado":1900.6,"real":1594.0,"diferenca_pct":-16.131747869093964,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Oeste","coordenacao":"Leitura","indicador":"ERRO DE LEITURA","eficiencia":"✅"}]},{"regiao":"Vale","planejado":1258.85,"real":1295.0,"diferenca_pct":2.871668586408237,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Vale","coordenacao":"Leitura","indicador":"ERRO DE LEITURA","eficiencia":"❌"}]}],"geral":{"planejado":8278.15,"real":7936.0,"diferenca_pct":-4.133169850751674,"atingiu_meta":false,"classificacao_irl":null}},{"bloco":"Leitura","indicador":"Aderência de Entrega de Fatura","indicador_original":"Aderência de Entrega de Fatura","indicador_chave":"ADERENCIA_ENTREGA_FATURA","tipo_agregacao":"soma","unidade":"percentual","irl":false,"regional":[{"regiao":"Baixada","planejado":0.8475561132452264,"real":0.8734,"diferenca_pct":3.049224275643453,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Baixada","coordenacao":"Leitura","indicador":"ADERÊNCIA DE ENTREGA DE FATURA","eficiencia":"✅"}]},{"regiao":"Centro Sul","planejado":0.9247371419449116,"real":0.9586,"diferenca_pct":3.6618901219721582,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Centro Sul","coordenacao":"Leitura","indicador":"ADERÊNCIA DE ENTREGA DE FATURA","eficiencia":"✅"}]},{"regiao":"Leste","planejado":0.966305287043931,"real":0.9543,"diferenca_pct":-1.2423907024928869,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Leste","coordenacao":"Leitura","indicador":"ADERÊNCIA DE ENTREGA DE FATURA","eficiencia":"⚠️"}]},{"regiao":"Oeste","planejado":0.9647665524392375,"real":0.975,"diferenca_pct":1.0607174901419498,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Oeste","coordenacao":"Leitura","indicador":"ADERÊNCIA DE ENTREGA DE FATURA","eficiencia":"✅"}]},{"regiao":"Vale","planejado":0.9926116695927387,"real":0.9919275498112272,"diferenca_pct":-0.06892119067995589,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Vale","coordenacao":"Leitura","indicador":"ADERÊNCIA DE ENTREGA DE FATURA","eficiencia":"✅"}]}],"geral":{"planejado":4.695976764266045,"real":4.7532275498112275,"diferenca_pct":1.2191454178570762,"atingiu_meta":false,"classificacao_irl":null}}]},{"bloco":"Cobrança","indicadores":[{"bloco":"Cobrança","indicador":"Corte no Disjuntor","indicador_original":"Corte no Disjuntor","indicador_chave":"CORTE_DISJUNTOR","tipo_agregacao":"soma","unidade":"absoluto","irl":false,"regional":[{"regiao":"Baixada","planejado":6446.042105263158,"real":11266.0,"diferenca_pct":74.77391267428074,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Baixada","coordenacao":"Leitura","indicador":"CORTE NO DISJUNTOR","eficiencia":"✅"}]},{"regiao":"Centro Sul","planejado":8297.557894736841,"real":12480.0,"diferenca_pct":50.40569958440532,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Centro Sul","coordenacao":"Leitura","indicador":"CORTE NO DISJUNTOR","eficiencia":"✅"}]},{"regiao":"Leste","planejado":9130.968421052632,"real":9948.0,"diferenca_pct":8.947918131702172,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Leste","coordenacao":"Leitura","indicador":"CORTE NO DISJUNTOR","eficiencia":"✅"}]},{"regiao":"Oeste","planejado":12959.95789473684,"real":15246.0,"diferenca_pct":17.639271082752067,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Oeste","coordenacao":"Leitura","indicador":"CORTE NO DISJUNTOR","eficiencia":"✅"}]},{"regiao":"Vale","planejado":11380.58947368421,"real":14435.0,"diferenca_pct":26.838772573060705,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Vale","coordenacao":"Leitura","indicador":"CORTE NO DISJUNTOR","eficiencia":"✅"}]}],"geral":{"planejado":48215.11578947368,"real":63375.0,"diferenca_pct":31.442181486653244,"atingiu_meta":true,"classificacao_irl":null}},{"bloco":"Cobrança","indicador":"Arrecadação","indicador_original":"Arrecadação","indicador_chave":"ARRECADACAO","tipo_agregacao":"soma","unidade":"moeda_mm","irl":false,"regional":[{"regiao":"Baixada","planejado":43.311717706200014,"real":46.23893001000004,"diferenca_pct":6.758476594385911,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Baixada","coordenacao":"Gerência","indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","eficiencia":"✅"},{"regiao":"Baixada","coordenacao":"Varejo","indicador":"ARRECADAÇÃO R$ MM","eficiencia":"✅"}]},{"regiao":"Centro Sul","planejado":69.6284379598,"real":84.34447778999984,"diferenca_pct":21.135099768712546,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Centro Sul","coordenacao":"Gerência","indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","eficiencia":"✅"},{"regiao":"Centro Sul","coordenacao":"Varejo","indicador":"ARRECADAÇÃO R$ MM","eficiencia":"✅"}]},{"regiao":"Leste","planejado":58.39317899060002,"real":67.27181318999995,"diferenca_pct":15.204916657867154,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Leste","coordenacao":"Gerência","indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","eficiencia":"✅"},{"regiao":"Leste","coordenacao":"Varejo","indicador":"ARRECADAÇÃO R$ MM","eficiencia":"✅"}]},{"regiao":"Oeste","planejado":78.74244227720001,"real":83.81511529999999,"diferenca_pct":6.442107808826212,"atingiu_meta":true,"classificacao_irl":null,"fontes":[{"regiao":"Oeste","coordenacao":"Gerência","indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","eficiencia":"✅"},{"regiao":"Oeste","coordenacao":"Varejo","indicador":"ARRECADAÇÃO R$ MM","eficiencia":"✅"}]},{"regiao":"Vale","planejado":48.2193238096,"real":46.70517785999992,"diferenca_pct":-3.140122734982497,"atingiu_meta":false,"classificacao_irl":null,"fontes":[{"regiao":"Vale","coordenacao":"Gerência","indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","eficiencia":"❌"},{"regiao":"Vale","coordenacao":"Varejo","indicador":"ARRECADAÇÃO R$ MM","eficiencia":"❌"}]}],"geral":{"planejado":298.29510074340004,"real":328.37551414999973,"diferenca_pct":10.084112454959666,"atingiu_meta":false,"classificacao_irl":null}}]}],"regioes":["Baixada","Centro Sul","Leste","Oeste","Vale"]};
 const REGION_ORDER = ["Baixada", "Centro Sul", "Leste", "Oeste", "Vale"];
 const COORD_ORDER = ["Gerência", "Varejo", "Projetos Especiais e Grandes Clientes", "Leitura", "Construção"];
+const EXEC_SUPABASE_URL="https://fjgfwfnnhebfvuvvjsui.supabase.co";
+const EXEC_SUPABASE_KEY="sb_publishable_QexGHESAqtHDVlI1h3aM1Q_Cew_cax7";
+const EXEC_PERIOD="Agosto/2026";
+const EXEC_WEEK_START="2026-09-21";
+const EXEC_WEEK_END="2026-09-27";
+const EXEC_JUST_MIN=30;
+const EXEC_JUST_MAX=350;
+const EXEC_JUST_MAP=new Map();
+const EXEC_JUST_DELETED_MAP=new Map();
 
 const regionSelect=document.getElementById("regionSelect");
 const managerCard=document.getElementById("managerCard");
@@ -1936,9 +1884,6 @@ const miniRankings=document.getElementById("miniRankings");
 const allRegionTables=document.getElementById("allRegionTables");
 
 const comparisonSections=document.getElementById("comparisonSections");
-const sidebarToggle=document.getElementById("sidebarToggle");
-const appRoot=document.querySelector(".app");
-if(sidebarToggle&&appRoot){sidebarToggle.addEventListener("click",()=>{appRoot.classList.toggle("sidebar-collapsed");const c=appRoot.classList.contains("sidebar-collapsed");sidebarToggle.textContent=c?"›":"‹";sidebarToggle.title=c?"Expandir menu":"Recolher menu";});}
 
 const evolutionRegionToggle=document.getElementById("evolutionRegionToggle");
 const evolutionRegionMenu=document.getElementById("evolutionRegionMenu");
@@ -1951,299 +1896,6 @@ const indicatorEvolutionSections=document.getElementById("indicatorEvolutionSect
 
 const CURRENT_PERIOD="Agosto/2026";
 const PREVIOUS_PERIOD="Julho/2026";
-const SUPABASE_URL="https://dxgaylieybxpdipvzbog.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY="sb_publishable_bE9KOTCn40C-5L_WfFIrsQ_m6LW6Mlj";
-const SUPABASE_AUTH_URL="https://fjgfwfnnhebfvuvvjsui.supabase.co";
-const SUPABASE_AUTH_PUBLISHABLE_KEY="sb_publishable_QexGHESAqtHDVlI1h3aM1Q_Cew_cax7";
-const CURRENT_WEEK_START="2026-09-21";
-const CURRENT_WEEK_END="2026-09-27";
-const CURRENT_WEEK_LABEL="21/09 a 27/09";
-const sb=(window.supabase&&typeof window.supabase.createClient==="function")
-  ?window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY)
-  :null;
-
-const authSb=(window.supabase&&typeof window.supabase.createClient==="function")
-  ?window.supabase.createClient(SUPABASE_AUTH_URL,SUPABASE_AUTH_PUBLISHABLE_KEY,{
-      auth:{
-        persistSession:true,
-        autoRefreshToken:true,
-        detectSessionInUrl:true
-      }
-    })
-  :null;
-
-const JUSTIFICATIVAS_ATUAIS=new Map();
-
-const AUTH_LOGIN_MAP={
-  "admin":"administrador@superintendencia.example",
-  "oper":"operacional@superintendencia.example"
-};
-
-let CURRENT_ACCESS_PROFILE=null;
-let PAINEL_INICIALIZADO=false;
-
-const loginForm=document.getElementById("loginForm");
-const loginUsuario=document.getElementById("loginUsuario");
-const loginSenha=document.getElementById("loginSenha");
-const loginButton=document.getElementById("loginButton");
-const loginError=document.getElementById("loginError");
-const logoutButton=document.getElementById("logoutButton");
-const authUserName=document.getElementById("authUserName");
-const authUserRole=document.getElementById("authUserRole");
-const authRoleBadge=document.getElementById("authRoleBadge");
-
-function mostrarErroLogin(msg){
-  loginError.textContent=String(msg||"Falha ao entrar.");
-  loginError.classList.add("show");
-}
-
-function limparErroLogin(){
-  loginError.textContent="";
-  loginError.classList.remove("show");
-}
-
-function emailInternoDoLogin(usuario){
-  const chave=String(usuario||"").trim().toLowerCase();
-  return AUTH_LOGIN_MAP[chave]||null;
-}
-
-function perfilPorEmail(email){
-  const e=String(email||"").trim().toLowerCase();
-
-  if(e==="administrador@superintendencia.example"){
-    return {
-      nome:"Administrador",
-      perfil:"ADMINISTRADOR",
-      ativo:true
-    };
-  }
-
-  if(e==="operacional@superintendencia.example"){
-    return {
-      nome:"Operacional",
-      perfil:"OPERACIONAL",
-      ativo:true
-    };
-  }
-
-  return null;
-}
-
-
-function aplicarPerfilAcesso(perfil){
-  CURRENT_ACCESS_PROFILE=perfil;
-
-  document.body.classList.remove(
-    "auth-pending",
-    "auth-logged-out",
-    "access-administrador",
-    "access-operacional"
-  );
-
-  const tipo=String(perfil?.perfil||"").toUpperCase();
-
-  if(tipo==="OPERACIONAL"){
-    document.body.classList.add("access-operacional");
-    authRoleBadge.textContent="OPERACIONAL";
-    authUserRole.textContent="Acesso às Tabelas";
-  }else{
-    document.body.classList.add("access-administrador");
-    authRoleBadge.textContent="ADMINISTRADOR";
-    authUserRole.textContent="Acesso completo";
-  }
-
-  authUserName.textContent=perfil?.nome||"Usuário";
-
-  if(!PAINEL_INICIALIZADO){
-    inicializarPainel();
-    PAINEL_INICIALIZADO=true;
-  }
-
-  if(tipo==="OPERACIONAL"){
-    switchView("tables");
-  }else{
-    switchView("general");
-  }
-}
-
-async function concluirSessao(session){
-  if(!session?.user){
-    document.body.classList.remove("auth-pending");
-    document.body.classList.add("auth-logged-out");
-    return;
-  }
-
-  const perfil=perfilPorEmail(session.user.email);
-
-  if(!perfil||!perfil.ativo){
-    try{ await authSb.auth.signOut(); }catch(_){}
-    document.body.classList.remove("auth-pending");
-    document.body.classList.add("auth-logged-out");
-    mostrarErroLogin("Usuário sem perfil válido para esta plataforma.");
-    return;
-  }
-
-  aplicarPerfilAcesso(perfil);
-}
-
-async function bootstrapAuth(){
-  if(!authSb){
-    document.body.classList.remove("auth-pending");
-    document.body.classList.add("auth-logged-out");
-    mostrarErroLogin("Serviço de autenticação indisponível.");
-    return;
-  }
-
-  const {data,error}=await authSb.auth.getSession();
-
-  if(error){
-    document.body.classList.remove("auth-pending");
-    document.body.classList.add("auth-logged-out");
-    mostrarErroLogin("Não foi possível verificar a sessão.");
-    return;
-  }
-
-  await concluirSessao(data?.session);
-}
-
-loginForm.addEventListener("submit",async event=>{
-  event.preventDefault();
-  limparErroLogin();
-
-  const email=emailInternoDoLogin(loginUsuario.value);
-
-  if(!email){
-    mostrarErroLogin("Usuário inválido. Utilize admin ou oper.");
-    return;
-  }
-
-  loginButton.disabled=true;
-  loginButton.textContent="Entrando...";
-
-  try{
-    const {data,error}=await authSb.auth.signInWithPassword({
-      email,
-      password:loginSenha.value
-    });
-
-    if(error)throw error;
-
-    loginSenha.value="";
-    await concluirSessao(data?.session);
-  }catch(err){
-    console.error(err);
-    mostrarErroLogin("Usuário ou senha inválidos.");
-  }finally{
-    loginButton.disabled=false;
-    loginButton.textContent="Entrar";
-  }
-});
-
-logoutButton.addEventListener("click",async()=>{
-  try{
-    await authSb.auth.signOut();
-  }finally{
-    CURRENT_ACCESS_PROFILE=null;
-    document.body.classList.remove("access-administrador","access-operacional","auth-pending");
-    document.body.classList.add("auth-logged-out");
-    loginUsuario.value="";
-    loginSenha.value="";
-    limparErroLogin();
-  }
-});
-
-function justKey(periodo,semanaInicio,regiao,coordenacao,indicador){return [periodo,semanaInicio,regiao,coordenacao,indicador].map(v=>String(v??"").trim()).join("¦")}
-function rowJustKey(row){return justKey(CURRENT_PERIOD,CURRENT_WEEK_START,row["Região"],row["Coordenação"],row["Indicador"])}
-function isEfficiencyBad(v){const x=String(v??"").trim().toUpperCase();return x==="❌"||x==="X"||x==="×"||x==="BAD"}
-function escapeHtml(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
-function truncarComentario(v,max=120){const t=String(v??"").replace(/\s+/g," ").trim();return t.length<=max?t:t.slice(0,max-1)+"…"}
-function encodedPayload(row){return encodeURIComponent(JSON.stringify({periodo:CURRENT_PERIOD,semana_inicio:CURRENT_WEEK_START,semana_fim:CURRENT_WEEK_END,regiao:row["Região"],coordenacao:row["Coordenação"],indicador:row["Indicador"],eficiencia:String(row["Eficiência"]??"")}))}
-
-function justificativaCells(row,mode){
-  if(!isEfficiencyBad(row["Eficiência"])) return mode==="tables"?`<td class="just-cell"><span class="just-na">—</span></td><td class="just-actions-col"><span class="just-na">—</span></td>`:`<td class="just-cell"><span class="just-na">—</span></td>`;
-  const current=JUSTIFICATIVAS_ATUAIS.get(rowJustKey(row));
-  const encoded=encodedPayload(row);
-  if(current&&!current.apagado){
-    const preview=escapeHtml(truncarComentario(current.justificativa,120));
-    if(mode==="tables") return `<td class="just-cell"><span class="just-ok">✓ JUSTIFICADO</span><div class="just-preview">${preview}</div></td><td class="just-actions-col"><div class="just-actions"><button class="just-btn" type="button" onclick="abrirHistoricoJustificativa('${encoded}')">Visualizar</button><button class="just-btn" type="button" onclick="abrirEditorJustificativa('${encoded}')">Editar</button><button class="just-btn danger" type="button" onclick="apagarJustificativa('${encoded}')">Apagar</button></div></td>`;
-    return `<td class="just-cell"><span class="just-ok readonly-click" role="button" tabindex="0" title="Clique para visualizar" onclick="abrirHistoricoJustificativa('${encoded}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirHistoricoJustificativa('${encoded}')}">✓ JUSTIFICADO</span><div class="just-preview">${preview}</div></td>`;
-  }
-  if(mode==="tables") return `<td class="just-cell"><span class="just-pending">⚠ PENDENTE</span></td><td class="just-actions-col"><div class="just-actions"><button class="just-btn danger" type="button" onclick="abrirEditorJustificativa('${encoded}')">Justificar</button></div></td>`;
-  return `<td class="just-cell"><span class="just-pending readonly-click" role="button" tabindex="0" title="Clique para visualizar o histórico" onclick="abrirHistoricoJustificativa('${encoded}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();abrirHistoricoJustificativa('${encoded}')}">⚠ PENDENTE</span></td>`;
-}
-
-function toggleActionsColumns(tableId,button){
-  const table=document.getElementById(tableId);
-  if(!table)return;
-  table.classList.toggle("show-actions");
-  if(button)button.textContent=table.classList.contains("show-actions")?"Ocultar Ações":"Mostrar Ações";
-}
-
-async function carregarJustificativasAtuais(){
-  if(!sb)return;
-  try{
-    const {data,error}=await sb.from("superintendencia_justificativas").select("*").eq("periodo",CURRENT_PERIOD).eq("semana_inicio",CURRENT_WEEK_START);
-    if(error){console.error(error);return}
-    JUSTIFICATIVAS_ATUAIS.clear();
-    (data||[]).forEach(j=>{const k=justKey(j.periodo,j.semana_inicio,j.regiao,j.coordenacao,j.indicador);if(!j.apagado)JUSTIFICATIVAS_ATUAIS.set(k,j)});
-    if(regionSelect?.value)render(regionSelect.value);
-    const tablesView=document.getElementById("view-tables");
-    if(tablesView?.classList.contains("active"))renderAllRegionTables();
-  }catch(e){console.error(e)}
-}
-
-function getJustModal(){return {backdrop:document.getElementById("justModalBackdrop"),title:document.getElementById("justModalTitle"),subtitle:document.getElementById("justModalSubtitle"),body:document.getElementById("justModalBody"),close:document.getElementById("justModalClose")}}
-function decodeJustPayload(encoded){return JSON.parse(decodeURIComponent(encoded))}
-function abrirModalBase(payload){const m=getJustModal();if(!m.backdrop)return false;m.title.textContent=payload.indicador;m.subtitle.textContent=`${payload.regiao} · ${payload.coordenacao} · ${CURRENT_PERIOD}`;m.backdrop.classList.add("open");return true}
-function fecharJustModal(){const m=getJustModal();if(!m.backdrop)return;m.backdrop.classList.remove("open");m.body.innerHTML=""}
-
-document.addEventListener("DOMContentLoaded",()=>{const m=getJustModal();m.close?.addEventListener("click",fecharJustModal);m.backdrop?.addEventListener("click",e=>{if(e.target===m.backdrop)fecharJustModal()})});
-document.addEventListener("keydown",e=>{const m=getJustModal();if(e.key==="Escape"&&m.backdrop?.classList.contains("open"))fecharJustModal()});
-
-async function abrirEditorJustificativa(encoded){
-  const payload=decodeJustPayload(encoded);if(!abrirModalBase(payload))return;
-  const key=justKey(payload.periodo,payload.semana_inicio,payload.regiao,payload.coordenacao,payload.indicador);
-  const current=JUSTIFICATIVAS_ATUAIS.get(key);
-  getJustModal().body.innerHTML=`<div class="just-editor"><div class="just-week-current"><div class="just-week-label">Semana atual · ${CURRENT_WEEK_LABEL}</div></div><textarea id="justTextarea" maxlength="5000" placeholder="Digite a justificativa...">${escapeHtml(current?.justificativa||"")}</textarea><div class="just-editor-footer"><span id="justSaveStatus" class="just-save-status"></span><button class="just-btn" type="button" onclick="fecharJustModal()">Cancelar</button><button id="justSaveButton" class="just-btn" type="button">Salvar</button></div></div>`;
-  document.getElementById("justSaveButton").onclick=()=>salvarJustificativa(payload,current);
-}
-
-async function salvarJustificativa(payload,current){
-  const textarea=document.getElementById("justTextarea"),status=document.getElementById("justSaveStatus"),btn=document.getElementById("justSaveButton");
-  const texto=String(textarea?.value||"").trim();
-  if(!texto){status.textContent="Informe uma justificativa.";return}
-  if(!sb){status.textContent="Conexão com o banco indisponível.";return}
-  btn.disabled=true;status.textContent="Salvando...";
-  try{
-    let registro=current;
-    if(!registro){const busca=await sb.from("superintendencia_justificativas").select("*").eq("periodo",payload.periodo).eq("semana_inicio",payload.semana_inicio).eq("regiao",payload.regiao).eq("coordenacao",payload.coordenacao).eq("indicador",payload.indicador).maybeSingle();if(busca.error){status.textContent="Não foi possível verificar o registro.";btn.disabled=false;return}registro=busca.data||null}
-    let result;
-    if(registro){result=await sb.from("superintendencia_justificativas").update({justificativa:texto,eficiencia_snapshot:payload.eficiencia,autor_nome:"Usuário da Plataforma",apagado:false,apagado_em:null}).eq("id",registro.id).eq("versao",registro.versao).select().maybeSingle();if(!result.error&&!result.data){status.textContent="O registro foi alterado por outro usuário. Atualizando...";btn.disabled=false;await carregarJustificativasAtuais();return}}
-    else result=await sb.from("superintendencia_justificativas").insert({periodo:payload.periodo,semana_inicio:payload.semana_inicio,semana_fim:payload.semana_fim,regiao:payload.regiao,coordenacao:payload.coordenacao,indicador:payload.indicador,justificativa:texto,eficiencia_snapshot:payload.eficiencia,autor_nome:"Usuário da Plataforma",apagado:false,apagado_em:null}).select().single();
-    if(result.error){console.error(result.error);status.textContent="Não foi possível salvar.";btn.disabled=false;return}
-    const saved=result.data;JUSTIFICATIVAS_ATUAIS.set(justKey(saved.periodo,saved.semana_inicio,saved.regiao,saved.coordenacao,saved.indicador),saved);status.textContent="Justificativa salva.";if(regionSelect?.value)render(regionSelect.value);renderAllRegionTables();setTimeout(fecharJustModal,350);
-  }catch(e){console.error(e);status.textContent="Erro inesperado ao salvar.";btn.disabled=false}
-}
-
-async function apagarJustificativa(encoded){
-  const payload=decodeJustPayload(encoded),key=justKey(payload.periodo,payload.semana_inicio,payload.regiao,payload.coordenacao,payload.indicador),current=JUSTIFICATIVAS_ATUAIS.get(key);
-  if(!current||!sb)return;
-  if(!confirm("Deseja realmente apagar a justificativa desta semana?\n\nO indicador voltará para PENDENTE e nenhum novo e-mail será enviado."))return;
-  const {data,error}=await sb.from("superintendencia_justificativas").update({apagado:true,apagado_em:new Date().toISOString(),autor_nome:"Usuário da Plataforma"}).eq("id",current.id).eq("versao",current.versao).select().maybeSingle();
-  if(error){console.error(error);alert("Não foi possível apagar a justificativa.");return}
-  if(!data){alert("A justificativa foi alterada por outro usuário. Atualizando...");await carregarJustificativasAtuais();return}
-  JUSTIFICATIVAS_ATUAIS.delete(key);if(regionSelect?.value)render(regionSelect.value);renderAllRegionTables();
-}
-
-async function abrirHistoricoJustificativa(encoded){
-  const payload=decodeJustPayload(encoded);if(!abrirModalBase(payload))return;const body=getJustModal().body;
-  if(!sb){body.innerHTML=`<div class="just-empty-history">Conexão com o banco indisponível.</div>`;return}
-  body.innerHTML=`<div class="just-empty-history">Carregando histórico...</div>`;
-  const {data,error}=await sb.from("superintendencia_justificativas").select("periodo,semana_inicio,semana_fim,justificativa,autor_nome,atualizado_em,apagado,apagado_em").eq("regiao",payload.regiao).eq("coordenacao",payload.coordenacao).eq("indicador",payload.indicador).eq("apagado",false).order("semana_inicio",{ascending:false});
-  if(error){body.innerHTML=`<div class="just-empty-history">Não foi possível carregar o histórico.</div>`;return}
-  const rows=data||[];if(!rows.length){body.innerHTML=`<div class="just-empty-history">Nenhuma justificativa registrada.</div>`;return}
-  body.innerHTML=rows.map(j=>{const atual=j.semana_inicio===CURRENT_WEEK_START,cls=atual?"just-week-current":"just-week-history",ini=String(j.semana_inicio||"").split("-").reverse().slice(0,2).join("/"),fim=String(j.semana_fim||"").split("-").reverse().slice(0,2).join("/"),dt=j.atualizado_em?new Date(j.atualizado_em).toLocaleString("pt-BR"):"";return `<div class="${cls}"><div class="just-week-label">${atual?"Semana atual · ":""}${ini} a ${fim}</div><div class="just-comment">${escapeHtml(j.justificativa)}</div><div class="just-meta">${escapeHtml(j.autor_nome||"")} ${dt?`· ${dt}`:""}</div></div>`}).join("");
-}
 
 const ICONS={
 trophy:`<svg viewBox="0 0 24 24"><path d="M8 4h8v4c0 4-2 6-4 6s-4-2-4-6V4Z"></path><path d="M8 6H4c0 4 1.5 6 4.2 6"></path><path d="M16 6h4c0 4-1.5 6-4.2 6"></path><path d="M12 14v4"></path><path d="M8 21h8"></path><path d="M9 18h6"></path></svg>`,
@@ -2479,7 +2131,7 @@ function rankingFor(region){
   return higherScores.length+1;
 }
 
-function table(rows,totalLabel,scoreOverride=null,mode="general"){
+function table(rows,totalLabel,scoreOverride=null,isTables=false){
   const normalized=rows
     .filter(r=>String(r["Indicador"]??"").trim()!=="")
     .map(r=>({...r}));
@@ -2538,29 +2190,40 @@ function table(rows,totalLabel,scoreOverride=null,mode="general"){
       <td>${renderPerformanceRow(r)}</td>
       <td>${formatPreviousMonth(r["Mês Anterior"])}</td>
       <td>${renderEfficiency(r["Eficiência"])}</td>
-      ${justificativaCells(r,mode)}
+      ${isTables ? `<td class="table-just-status-cell">${execEfficiencyOK(r["Eficiência"])
+        ? '<span class="table-just-not-required">—</span>'
+        : execSavedJust(r)?.justificativa
+          ? `<div class="table-just-preview"><button type="button" class="table-just-badge saved table-just-open" onclick="execViewRowJust('${encodeURIComponent(JSON.stringify(r)).replaceAll("'","%27")}')">Justificado</button><button class="table-just-snippet" type="button" title="Clique para ler o comentário completo" onclick="execViewRowJust('${encodeURIComponent(JSON.stringify(r)).replaceAll("'","%27")}')">${execEscapeText(execSavedJust(r).justificativa.slice(0,92))}${execSavedJust(r).justificativa.length>92?'…':''}</button></div>`
+          : '<span class="table-just-badge pending">● Pendente</span>'}</td>
+      <td class="table-just-management"><div class="table-just-row-actions">${execEfficiencyOK(r["Eficiência"])
+        ? '<span class="table-just-not-required">—</span>'
+        : `<button type="button" onclick="execOpenTableJust('${encodeURIComponent(JSON.stringify(r)).replaceAll("'","%27")}')">${execSavedJust(r)?.justificativa?'Editar':'Justificar'}</button>${execSavedJust(r)?.justificativa?`<button class="delete" type="button" onclick="execDeleteTableJust('${encodeURIComponent(JSON.stringify(r)).replaceAll("'","%27")}')">Apagar</button>`:''}`}</div></td>`
+      : `<td class="table-just-cell">${execSavedJust(r)?.justificativa
+        ? `<button class="table-just-readonly table-just-snippet" type="button" title="Clique para ler o comentário completo" onclick="execViewRowJust('${encodeURIComponent(JSON.stringify(r)).replaceAll("'","%27")}')">${execEscapeText(execSavedJust(r).justificativa.slice(0,110))}${execSavedJust(r).justificativa.length>110?'…':''}</button>`
+        : '<span class="table-just-not-required">—</span>'}</td>`}
     </tr>`;
   }).join("");
 
   const tableId=`tbl-${Math.random().toString(36).slice(2)}`;
+  const justTableKey=rows.map(r=>String(r["Região"]??"")+"|"+String(r["Coordenação"]??"")).find(Boolean)||totalLabel;
+  const justOpen=isTables&&EXEC_JUST_OPEN_TABLES.has(justTableKey);
   const score=formatScore(scoreOverride===null?totalScore(rows):scoreOverride);
 
   return `<div class="data-table-block">
     <div class="table-card-head">
       <div class="table-total-score">${totalLabel}: <strong>${score}</strong></div>
       <div class="table-card-actions">
-        ${mode==="tables"
-          ?`<button class="toggle-actions" type="button" onclick="toggleActionsColumns('${tableId}',this)">Mostrar Ações</button>`
-          :`<button class="toggle-calc" type="button" onclick="toggleCalcColumns('${tableId}',this)">Mostrar Pontos, Peso e Score</button>`}
+        <button class="toggle-calc" type="button" onclick="toggleCalcColumns('${tableId}',this)">Mostrar Pontos, Peso e Score</button>
       </div>
+      ${isTables?`<div class="table-just-toolbar"><button class="toggle-just-management" type="button" onclick="toggleJustManagement('${tableId}',this)">${justOpen?'Ocultar':'Mostrar'} ações de justificativa</button></div>`:''}
     </div>
     <div class="table-wrap">
-      <table id="${tableId}">
+      <table id="${tableId}" data-just-table-key="${justTableKey}" class="${justOpen?'show-just-actions':''}">
         <thead><tr>
           <th>Blocos</th><th>Indicador</th><th>Planejado</th><th>Realizado</th>
           <th class="calc-col">Pontos</th><th class="calc-col">Peso</th><th class="calc-col">Score</th>
-          <th>Avanço</th><th>Desempenho</th><th>Mês Anterior</th><th>Eficiência</th><th>Justificativa</th>
-          ${mode==="tables"?'<th class="just-actions-col">Ações</th>':""}
+          <th>Avanço</th><th>Desempenho</th><th>Mês Anterior</th><th>Eficiência</th>
+          ${isTables?'<th>Justificativa</th><th class="table-just-management">Ações</th>':'<th>Comentário</th>'}
         </tr></thead>
         <tbody>${body}</tbody>
       </table>
@@ -2568,6 +2231,15 @@ function table(rows,totalLabel,scoreOverride=null,mode="general"){
   </div>`;
 }
 
+const EXEC_JUST_OPEN_TABLES=new Set();
+function toggleJustManagement(tableId,button){
+  const table=document.getElementById(tableId);
+  if(!table)return;
+  const open=table.classList.toggle("show-just-actions");
+  const key=table.dataset.justTableKey;
+  if(key){if(open)EXEC_JUST_OPEN_TABLES.add(key);else EXEC_JUST_OPEN_TABLES.delete(key)}
+  button.textContent=open?"Ocultar ações de justificativa":"Mostrar ações de justificativa";
+}
 function toggleCalcColumns(tableId,button){
   const table=document.getElementById(tableId);
   if(!table)return;
@@ -2937,9 +2609,8 @@ function chartBounds(values,kind="percent"){
     range=minSpan;
   }
 
-  // Mantém alguma respiração visual, mas evita grandes áreas vazias.
-  const lowerPad=range*0.05;
-  const upperPad=range*0.08;
+  const lowerPad=range*0.12;
+  const upperPad=range*0.20;
 
   return {
     min:min-lowerPad,
@@ -2978,8 +2649,8 @@ function groupedBarChart(data){
     return `<div class="empty-state">Este indicador não possui avanço numérico para comparação.</div>`;
   }
 
-  const W=980,H=305;
-  const margin={top:18,right:18,bottom:34,left:20};
+  const W=980,H=285;
+  const margin={top:30,right:22,bottom:48,left:24};
   const innerW=W-margin.left-margin.right;
   const innerH=H-margin.top-margin.bottom;
   const bounds=chartBounds(values,"percent");
@@ -3012,7 +2683,7 @@ function groupedBarChart(data){
         <text x="${xCur+barW/2}" y="${curY-7}" text-anchor="middle" font-size="11" font-weight="900" fill="#005852">${pctLabel(d.current)}</text>
       </g>
 
-      <text x="${center}" y="${H-10}" text-anchor="middle"
+      <text x="${center}" y="${H-28}" text-anchor="middle"
             font-size="12" font-weight="800" fill="#354844">${svgTextEscape(d.region)}</text>
     `;
   }).join("");
@@ -3035,8 +2706,8 @@ function multiSeriesBarChart(series,formatter="score"){
   const labels=[...new Set(usable.flatMap(s=>s.points.map(p=>p.label)))];
   const allValues=usable.flatMap(s=>s.points.map(p=>p.value));
 
-  const W=980,H=315;
-  const margin={top:20,right:18,bottom:34,left:20};
+  const W=980,H=295;
+  const margin={top:38,right:22,bottom:50,left:24};
   const innerW=W-margin.left-margin.right;
   const innerH=H-margin.top-margin.bottom;
 
@@ -3101,7 +2772,7 @@ function multiSeriesBarChart(series,formatter="score"){
     bars+=`
       <text
         x="${center}"
-        y="${H-10}"
+        y="${H-24}"
         text-anchor="middle"
         font-size="12"
         font-weight="800"
@@ -3228,7 +2899,7 @@ function renderAllRegionTables(){
 
         return `<section class="card all-tables-card">
           <div class="region-table-title">${region} — ${label}</div>
-          ${table(rowsFor(region,coord),"",null,"tables")}
+          ${table(rowsFor(region,coord),"",null,true)}
         </section>`;
       })
       .join("");
@@ -3241,65 +2912,510 @@ function renderAllRegionTables(){
       <div class="region-boundary end">FIM — REGIÃO ${region}</div>
     `;
   }).join("");
-
 }
 
-function compPct(v){if(v===null||v===undefined||!Number.isFinite(Number(v)))return "—";const n=Number(v);return `${n>0?"+":""}${n.toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})}%`;}
-function compClass(v){return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g,"-");}
-function compValue(v,item){
+function execNorm(v){
+  return String(v??"").trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase();
+}
+function execBlockName(row){
+  const raw=String(row?.["Blocos"]??"").trim();
+  const n=execNorm(raw);
+  if(n.includes("SEGUR"))return "Segurança";
+  if(n.includes("PERDA"))return "Perdas";
+  if(n.includes("CLIENT"))return "Cliente";
+  if(n.includes("QUAL"))return "Qualidade";
+  if(n.includes("PROD"))return "Produtividade";
+  if(n.includes("ORC"))return "Orçamento";
+  if(n.includes("LEIT"))return "Leitura";
+  if(n.includes("COBR"))return "Cobrança";
+  const ind=execNorm(row?.["Indicador"]);
+  if(ind==="IRL")return "Segurança";
+  if(ind.includes("IEN"))return "Perdas";
+  if(ind.includes("RECLAM")||ind.includes("ATENDIMENTO NO PRAZO"))return "Cliente";
+  if(ind.includes("IQG"))return "Qualidade";
+  if(ind.includes("PLANO FISICO"))return "Produtividade";
+  if(ind.includes("CAPEX")||ind.includes("OPEX")||ind.includes("AIS"))return "Orçamento";
+  if(ind.includes("LEITURA")||ind.includes("CLIENTES NAO LIDOS")||ind.includes("FATURA"))return "Leitura";
+  if(ind.includes("ARRECAD")||ind.includes("CORTE"))return "Cobrança";
+  return raw||"Outros";
+}
+function execBlockIcon(block){
+  return {
+    "Segurança":"◆","Perdas":"◒","Cliente":"●","Qualidade":"✦",
+    "Produtividade":"▥","Orçamento":"≋","Leitura":"▤","Cobrança":"$"
+  }[block]||"•";
+}
+function execIsIRL(ind){return execNorm(ind)==="IRL"}
+function execEfficiencyOK(v){
+  const t=String(v??"").trim().toUpperCase();
+  return t.includes("✅")||["OK","SIM","ATINGIU","ATINGIDA"].includes(t);
+}
+function execUnit(ind){
+  const t=execNorm(ind);
+  if(t.includes("CAPEX")||t.includes("OPEX")||t.includes("ARRECAD"))return "money";
+  if(isPercentIndicator(ind))return "percent";
+  return "number";
+}
+function execFmt(v,ind){
   const n=number(v);
-  if(n===null){
-    return (v===null||v===undefined||v==="")?"—":String(v);
-  }
-
-  const unidade=String(item?.unidade||"absoluto");
-
-  if(unidade==="percentual"){
+  if(n===null)return "-";
+  const u=execUnit(ind);
+  if(u==="percent"){
     const p=Math.abs(n)<=2?n*100:n;
-    return p.toLocaleString("pt-BR",{
-      minimumFractionDigits:0,
-      maximumFractionDigits:2
-    })+"%";
+    return p.toLocaleString("pt-BR",{maximumFractionDigits:2})+"%";
   }
-
-  if(unidade==="moeda_mm"){
-    return "R$ "+n.toLocaleString("pt-BR",{
-      minimumFractionDigits:0,
-      maximumFractionDigits:2
-    })+" MM";
+  if(u==="money"){
+    return "R$ "+n.toLocaleString("pt-BR",{maximumFractionDigits:2});
   }
+  return n.toLocaleString("pt-BR",{maximumFractionDigits:2});
+}
+function execAggType(ind){
+  const t=execNorm(ind);
+  if(t==="IRL"||t.includes("ATENDIMENTO NO PRAZO")||t.includes("IQG")||(t.includes("AIS")&&t.includes("REALIZADO")))return "avg";
+  return "sum";
+}
+function execAggregate(vals,type){
+  const a=vals.filter(Number.isFinite);
+  if(!a.length)return null;
+  return type==="avg"?a.reduce((x,y)=>x+y,0)/a.length:a.reduce((x,y)=>x+y,0);
+}
+function execCanonicalIndicator(ind){
+  const t=execNorm(ind);
+  // IQG Padrão e IQG SLA são fontes do mesmo indicador.
+  if(t.includes("IQG") && (t.includes("QUALIDADE GERAL") || t.startsWith("IQG"))){
+    return "IQG - Índice de Qualidade Geral";
+  }
+  return String(ind??"").trim();
+}
+function execIndicatorsForBlock(block){
+  const rows=DATA.filter(r=>execBlockName(r)===block);
+  return [...new Set(rows.map(r=>execCanonicalIndicator(r["Indicador"])).filter(Boolean))];
+}
+function execRowsForIndicator(block,ind){
+  return REGION_ORDER.map(region=>{
+    const candidates=DATA.filter(r=>execBlockName(r)===block&&r["Região"]===region&&execCanonicalIndicator(r["Indicador"])===ind);
+    if(!candidates.length)return null;
+    const ps=candidates.map(r=>number(r["Planejado"])).filter(Number.isFinite);
+    const rs=candidates.map(r=>number(r["Realizado"])).filter(Number.isFinite);
+    if(!ps.length||!rs.length)return null;
+    const type=execAggType(ind);
+    const p=execAggregate(ps,type),real=execAggregate(rs,type);
+    const source=candidates.find(r=>!execEfficiencyOK(r["Eficiência"]))||candidates[0];
+    return {
+      region,planned:p,real,
+      ok:candidates.every(r=>execEfficiencyOK(r["Eficiência"])),
+      source,
+      sources:candidates
+    };
+  }).filter(Boolean);
+}
+function execGeneralAttainment(planned,real,ind){
+  const p=number(planned),r=number(real);
+  if(p===null||r===null)return false;
+  const t=execNorm(ind);
+  const eps=Math.max(1e-9,Math.abs(p)*1e-9);
+  // Faixas históricas específicas do projeto. Não estender tolerância aos demais indicadores.
+  if(t.includes("CAPEX"))return r>=p*.90-eps&&r<=p*1.10+eps;
+  if(t.includes("OPEX"))return r>=p*.85-eps&&r<=p*1.15+eps;
+  if(t.includes("RECLAM")||t.includes("CLIENTES NAO LIDOS")||t.includes("ERRO DE LEITURA"))return r<=p+eps;
+  // Demais indicadores: meta mínima de realização (inclusive IEN, IQG e prazo).
+  return r+eps>=p;
+}
+function execGeneral(rows,ind){
+  const type=execAggType(ind);
+  const planned=execAggregate(rows.map(x=>x.planned),type);
+  const real=execAggregate(rows.map(x=>x.real),type);
+  return {planned,real,ok:execGeneralAttainment(planned,real,ind)};
+}
+function execKey(row){
+  return [
+    EXEC_PERIOD,EXEC_WEEK_START,
+    String(row?.["Região"]??"").trim(),
+    String(row?.["Coordenação"]??"").trim(),
+    String(row?.["Indicador"]??"").trim()
+  ].join("¦");
+}
+function execSavedJust(row){return EXEC_JUST_MAP.get(execKey(row))||null}
+function execJustificationsForBlock(block){
+  const out=[];
+  execIndicatorsForBlock(block).forEach(ind=>{
+    execRowsForIndicator(block,ind).forEach(x=>{
+      (x.sources||[x.source]).forEach(source=>{
+        const saved=execSavedJust(source);
+        if(saved?.justificativa){
+          out.push({
+            region:x.region,indicator:ind,text:String(saved.justificativa).trim(),row:source,saved
+          });
+        }
+      });
+    });
+  });
+  return out;
+}
+async function execLoadJustifications(){
+  try{
+    const url=new URL(`${EXEC_SUPABASE_URL}/rest/v1/superintendencia_justificativas`);
+    url.searchParams.set("select","*");
+    url.searchParams.set("periodo",`eq.${EXEC_PERIOD}`);
+    url.searchParams.set("semana_inicio",`eq.${EXEC_WEEK_START}`);
+    const r=await fetch(url,{
+      headers:{apikey:EXEC_SUPABASE_KEY,Authorization:`Bearer ${EXEC_SUPABASE_KEY}`}
+    });
+    if(!r.ok)throw new Error(await r.text());
+    const data=await r.json();
+    EXEC_JUST_MAP.clear();
+    EXEC_JUST_DELETED_MAP.clear();
+    (data||[]).forEach(j=>{
+      const k=[j.periodo,j.semana_inicio,j.regiao,j.coordenacao,j.indicador].join("¦");
+      if(j.apagado)EXEC_JUST_DELETED_MAP.set(k,j);
+      else EXEC_JUST_MAP.set(k,j);
+    });
+    // Tabelas pode estar aberta enquanto ocorre o carregamento assíncrono.
+    renderAllRegionTables();
+    if(regionSelect?.value)render(regionSelect.value);
+  }catch(e){console.warn("Justificativas da Comparação:",e)}
+}
+function execSummary(){
+  const blocks=[...new Set(DATA.map(execBlockName).filter(x=>x&&x!=="Outros"))];
+  const regional=[];
+  blocks.forEach(b=>execIndicatorsForBlock(b).forEach(ind=>{
+    if(execIsIRL(ind))return;
+    regional.push(...execRowsForIndicator(b,ind));
+  }));
+  const total=regional.length,hit=regional.filter(x=>x.ok).length,miss=total-hit;
+  const hp=total?Math.round(hit/total*100):0,mp=total?Math.round(miss/total*100):0;
+  const el=document.getElementById("comparisonSummary");
+  if(!el)return;
+  el.innerHTML=`
+    <div class="exec-kpi">
+      <div class="exec-kpi-icon">✓</div>
+      <div class="exec-kpi-copy"><small>Metas atingidas</small><strong>${hit}/${total}</strong></div>
+      <div class="exec-kpi-rate">${hp}%</div>
+      <div class="exec-kpi-track"><i style="width:${hp}%"></i></div>
+    </div>
+    <div class="exec-kpi pending">
+      <div class="exec-kpi-icon">!</div>
+      <div class="exec-kpi-copy"><small>Metas pendentes</small><strong>${miss}/${total}</strong></div>
+      <div class="exec-kpi-rate">${mp}%</div>
+      <div class="exec-kpi-track"><i style="width:${mp}%"></i></div>
+    </div>`;
+}
+function execVerticalChart(rows,ind,compact){
+  const values=rows.flatMap(x=>[number(x.planned),number(x.real)]).filter(Number.isFinite);
+  if(!values.length)return `<div class="exec-vchart exec-empty">Sem dados para o período</div>`;
+  const low=Math.min(...values),high=Math.max(...values),spread=high-low;
+  const reference=Math.max(Math.abs(high),Math.abs(low),1);
+  const safe=spread>reference*.00001?spread:Math.max(reference*.08,.01);
+  const min=low-safe*.38,max=high+safe*.35,range=max-min;
+  const pos=v=>Math.max(0,Math.min(100,(v-min)/range*100));
+  const H=226,adjusted=min>0.00001;
+  return `<div class="exec-chart-shell">
+    <div class="exec-axis-note"><span>${adjusted?'Eixo Y com origem ajustada':'Eixo Y adaptativo'}</span><span>${execFmt(min,ind)} — ${execFmt(max,ind)}</span></div>
+    <div class="exec-vchart">${rows.map(x=>{
+      const plan=pos(x.planned),real=pos(x.real),py=plan/100*H,ry=real/100*H;
+      const higher=x.planned>x.real+Math.max(1e-9,Math.abs(x.planned)*1e-9);
+      // Centro de cada rótulo próximo ao ponto que representa; desvia quando muito próximos.
+      let metaY=py+(higher?5:-18),realY=higher?Math.max(4,ry-18):ry+6;
+      const close=Math.abs(metaY-realY)<21;
+      if(close){metaY+=higher?7:-9;realY+=higher?-10:12;}
+      metaY=Math.max(3,Math.min(H-15,metaY));realY=Math.max(4,Math.min(H-15,realY));
+      const delta=x.planned===0||x.planned===null?null:(x.real-x.planned)/Math.abs(x.planned)*100;
+      const diff=delta===null?'—':`${delta>0?'+':''}${delta.toLocaleString('pt-BR',{maximumFractionDigits:1})}%`;
+      return `<div class="exec-vcol" title="${x.region}: Meta ${execFmt(x.planned,ind)}; Realizado ${execFmt(x.real,ind)}; desvio ${diff}">
+        <div class="exec-vplot ${adjusted?'exec-plot-truncated':''}">
+          <div class="exec-vbar ${x.ok?'met':'missed'}" style="height:${Math.max(5,real)}%"></div>
+          <div class="exec-target-marker" style="bottom:${plan}%"></div>
+          <span class="exec-label meta ${close?'collision':''}" style="bottom:${metaY}px"><b>Meta</b> ${execFmt(x.planned,ind)}</span>
+          <span class="exec-label real ${x.ok?'met':'missed'} ${close?'collision':''}" style="bottom:${realY}px">${execFmt(x.real,ind)}</span>
+          ${adjusted?'<span class="exec-axis-break" title="Eixo Y com origem ajustada">∿</span>':''}
+        </div>
+        <div class="exec-vregion">${x.region}</div>
+        <div class="exec-region-delta ${x.ok?'met':'missed'}">Δ ${diff}</div>
+      </div>`;
+    }).join('')}</div>
+  </div>`;
+}
 
-  return n.toLocaleString("pt-BR",{
-    minimumFractionDigits:0,
-    maximumFractionDigits:2
+function execMetaGaugeSVG(planned,real,ok){
+  const p=number(planned),r=number(real),valid=p!==null&&r!==null&&Math.abs(p)>1e-12;
+  const ratio=valid?Math.max(0,Math.min(1.5,Math.abs(r/p))):0;
+  const cx=72,cy=84,rad=53,length=Math.PI*rad;
+  const a=Math.PI-ratio/1.5*Math.PI;
+  const tx=cx+41*Math.cos(a),ty=cy-41*Math.sin(a);
+  const mt=Math.PI-(1/1.5)*Math.PI;
+  const mx1=cx+45*Math.cos(mt),my1=cy-45*Math.sin(mt);
+  const mx2=cx+61*Math.cos(mt),my2=cy-61*Math.sin(mt);
+  const color=ok?"#009B91":"#F5AA41";
+  return `<svg class="exec-meta-gauge" viewBox="0 0 144 110" role="img" aria-label="Semicírculo completo de 180 graus com ponteiro do realizado e referência de meta 100%">
+    <path d="M 19 84 A 53 53 0 0 1 125 84" fill="none" stroke="#D5E9E5" stroke-width="15" stroke-linecap="butt"/>
+    <path d="M 19 84 A 53 53 0 0 1 125 84" fill="none" stroke="${color}" stroke-width="15" stroke-linecap="butt" stroke-dasharray="${(ratio/1.5*length).toFixed(3)} ${length.toFixed(3)}"/>
+    <line x1="${mx1}" y1="${my1}" x2="${mx2}" y2="${my2}" stroke="#193D38" stroke-width="2.5"/>
+    <circle cx="${mx2}" cy="${my2}" r="3" fill="#193D38"/>
+    <line x1="${cx}" y1="${cy}" x2="${tx}" y2="${ty}" stroke="#173D39" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="5" fill="#173D39" stroke="#fff" stroke-width="1.7"/>
+    <text x="${cx}" y="101" text-anchor="middle" font-size="15" font-weight="900" fill="${color}">${valid?Math.round(Math.abs(r/p)*100)+"%":"—"}</text>
+    <text x="${cx}" y="110" text-anchor="middle" font-size="7" font-weight="800" fill="#44605A">Meta 100%</text>
+  </svg>`;
+}
+function execGeneralBox(rows,ind){
+  const g=execGeneral(rows,ind),cls=g.ok?"met":"missed";
+  const diff=g.planned===null||Math.abs(g.planned)<1e-12?null:(g.real-g.planned)/Math.abs(g.planned)*100;
+  const dtext=diff===null?"—":`${diff>0?"+":""}${diff.toLocaleString("pt-BR",{maximumFractionDigits:1})}%`;
+  const indicatorRule=execNorm(ind);
+  const allowedRange=indicatorRule.includes("CAPEX")?" · Faixa: 90–110%":indicatorRule.includes("OPEX")?" · Faixa: 85–115%":"";
+  return `<div class="exec-general exec-general-with-gauge">
+    <div class="exec-general-info">
+      <div class="exec-general-label">CONSOLIDADO GERAL</div>
+      <div class="exec-general-values">
+        <div><small>Planejado (meta)</small><strong>${execFmt(g.planned,ind)}</strong></div>
+        <div><small>Realizado</small><strong>${execFmt(g.real,ind)}</strong></div>
+      </div>
+      <div class="exec-general-status ${cls}"><span class="exec-dot">${g.ok?"✓":"!"}</span>${g.ok?"Meta atingida":"Meta pendente"}<span class="exec-tolerance-rule">${allowedRange}</span><span class="exec-general-delta">Δ ${dtext}</span></div>
+    </div>
+    <div class="exec-meta-gauge-wrap">${execMetaGaugeSVG(g.planned,g.real,g.ok)}</div>
+  </div>`;
+}
+
+function execIRLGaugeSVG(value,big=true){
+  // Semicírculo integral 180º; bandas da classificação, ponteiro e escala explícita.
+  const original=number(value),valid=original!==null;
+  const n=valid?Math.max(0,Math.min(4,original)):0;
+  const w=big?252:56,h=big?163:42,cx=w/2,cy=big?117:32,r=big?83:23;
+  const P=(deg,rr=r)=>{const a=deg*Math.PI/180;return{x:cx+rr*Math.cos(a),y:cy-rr*Math.sin(a)}};
+  const arc=(a0,a1)=>{const p=P(a0),q=P(a1);return `M ${p.x.toFixed(2)} ${p.y.toFixed(2)} A ${r} ${r} 0 0 1 ${q.x.toFixed(2)} ${q.y.toFixed(2)}`};
+  const bands=[{a:180,b:135,color:'#009B91'},{a:135,b:90,color:'#64C8B7'},{a:90,b:45,color:'#F5AA41'},{a:45,b:0,color:'#D84B48'}];
+  const ang=180-n/4*180,tip=P(ang,r-(big?29:8));
+  const display=valid?original.toLocaleString('pt-BR',{maximumFractionDigits:2}):'—';
+  const status=execIRLClass(original);
+  return `<svg class="${big?'exec-irl-svg exec-irl-v26':'exec-irl-mini-v26'}" viewBox="0 0 ${w} ${h}" role="img" aria-label="IRL ${display}: ${status}. Escala de risco de zero a quatro.">
+    <path d="M ${cx-r} ${cy} A ${r} ${r} 0 0 1 ${cx+r} ${cy}" fill="none" stroke="#E1EBE8" stroke-width="${big?22:7}"/>
+    ${bands.map(b=>`<path d="${arc(b.a,b.b)}" fill="none" stroke="${b.color}" stroke-width="${big?20:6}"/>`).join('')}
+    ${big?[0,1,2,3,4].map(t=>{const p=P(180-t/4*180,r+19);return `<text x="${p.x}" y="${p.y+4}" text-anchor="middle" font-size="9" font-weight="800" fill="#365650">${t}</text>`}).join(''):''}
+    <line x1="${cx}" y1="${cy}" x2="${tip.x}" y2="${tip.y}" stroke="#163D38" stroke-width="${big?4:1.8}" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="${big?7:2.7}" fill="#163D38" stroke="white" stroke-width="${big?2:0.7}"/>
+    ${big?`<text x="${cx}" y="${cy+18}" text-anchor="middle" font-size="23" font-weight="900" fill="#173D39">${display}</text><text x="${cx}" y="${cy+34}" text-anchor="middle" font-size="11" font-weight="900" fill="#005852">${status}</text>`:''}
+  </svg>`;
+}
+function execIRLClass(v){
+  const n=number(v);
+  if(n===null)return "Sem dado";
+  if(n<=1)return "Seguro";
+  if(n<=2)return "Aceitável";
+  if(n<=3)return "Tolerável";
+  return "Crítico";
+}
+function execIRLIndicator(block,ind,rows){
+  const all=rows.map(x=>x.real).filter(Number.isFinite);
+  const general=all.length?all.reduce((a,b)=>a+b,0)/all.length:0;
+  return `<div class="exec-indicator">
+    <div class="exec-indicator-head" style="grid-template-columns:1fr">
+      <div class="exec-indicator-title">${ind} — classificação por faixa de risco</div>
+    </div>
+    <div class="exec-irl-main">${execIRLGaugeSVG(general,true)}</div>
+    <div class="exec-irl-general-class">Consolidado geral · ${execIRLClass(general)}</div>
+    <div class="exec-irl-regions">
+      ${rows.map(x=>{const cl=execIRLClass(x.real),cn=execNorm(cl).toLowerCase();return `<div class="exec-irl-mini">${execIRLGaugeSVG(x.real,false)}<strong>${Number((x.real||0).toFixed(2)).toLocaleString("pt-BR")}</strong><span>${x.region}</span><em class="exec-irl-class ${cn}">${cl}</em></div>`}).join("")}
+    </div>
+  </div>`;
+}
+function execIndicator(block,ind){
+  const rows=execRowsForIndicator(block,ind);
+  if(execIsIRL(ind))return execIRLIndicator(block,ind,rows);
+  return `<div class="exec-indicator">
+    <div class="exec-indicator-head">
+      <div class="exec-indicator-title">${ind}</div>
+      ${execGeneralBox(rows,ind)}
+    </div>
+    ${execVerticalChart(rows,ind,false)}
+  </div>`;
+}
+function execBlockJustHTML(block){
+  const just=execJustificationsForBlock(block);
+  if(!just.length)return "";
+  return `<div class="exec-justifications">
+    <div class="exec-just-title">
+      <span>Justificativas (${just.length})</span>
+      <button type="button" onclick="execOpenJustModal('${encodeURIComponent(block)}')">Ver todas</button>
+    </div>
+    ${just.slice(0,2).map(j=>`<div class="exec-just-line"><i></i><button type="button" onclick="execViewSavedJust('${encodeURIComponent(JSON.stringify(j.saved)).replaceAll("'","%27")}')"><strong>${j.region}:</strong> ${j.text.length>110?j.text.slice(0,109).trim()+"…":j.text}</button></div>`).join("")}
+  </div>`;
+}
+function execRenderBlock(block){
+  const inds=execIndicatorsForBlock(block);
+  if(!inds.length)return "";
+  const just=execJustificationsForBlock(block),cls=[just.length?"has-just":"",inds.length>1?"multi-indicator":""].filter(Boolean).join(" ");
+  return `<section class="exec-block ${cls}">
+    <div class="exec-block-head">
+      <div class="exec-block-head-left">
+        <div class="exec-block-icon">${execBlockIcon(block)}</div>
+        <div class="exec-block-title">${block}</div>
+      </div>
+      <button class="exec-block-just-link" type="button" onclick="execOpenJustModal('${encodeURIComponent(block)}')">Ver justificativas (${just.length}) ›</button>
+    </div>
+    <div class="exec-block-body">
+      ${inds.map(ind=>execIndicator(block,ind)).join("")}
+      ${execBlockJustHTML(block)}
+    </div>
+  </section>`;
+}
+async function renderComparisonAll(){
+  await execLoadJustifications();
+  execSummary();
+  const order=["Segurança","Perdas","Cliente","Qualidade","Produtividade","Orçamento","Leitura","Cobrança"];
+  comparisonSections.innerHTML=`<div class="exec-block-grid">${order.map(execRenderBlock).join("")}</div>`;
+}
+function execAllBlockRows(block){
+  const arr=[];
+  execIndicatorsForBlock(block).forEach(ind=>{
+    execRowsForIndicator(block,ind).forEach(x=>{
+      (x.sources||[x.source]).forEach(source=>arr.push({ind,...x,source}));
+    });
+  });
+  return arr;
+}
+function execEditorRows(block){
+  return execAllBlockRows(block).filter(x=>{
+    if(execIsIRL(x.ind))return !!execSavedJust(x.source);
+    return !x.ok||!!execSavedJust(x.source);
   });
 }
-function compGeneralHTML(item){const g=item.geral||{},s=g.atingiu_meta?"ok":"bad";return `<div class="comp-general"><div class="comp-kpi plan"><span>Planejado Geral</span><strong>${compValue(g.planejado,item)}</strong></div><div class="comp-kpi real ${s}"><span>Real Geral</span><strong>${compValue(g.real,item)}</strong></div><div class="comp-kpi diff ${s}"><span>Diferença</span><strong>${compPct(g.diferenca_pct)}</strong></div></div>`;}
-function compPendingHTML(item){const failed=(item.regional||[]).filter(x=>!x.atingiu_meta);if(!failed.length)return `<div class="comp-ok-note">✓ Sem pendências — todas as regionais participantes atingiram a meta.</div>`;const buttons=failed.map(x=>{const fonte=(x.fontes||[]).find(f=>String(f.eficiencia||"").includes("❌"))||(x.fontes||[])[0];
-    const row=fonte?DATA.find(r=>r["Região"]===fonte.regiao&&r["Coordenação"]===fonte.coordenacao&&r["Indicador"]===fonte.indicador):null;return row?`<button class="comp-pending-btn" type="button" onclick="abrirEditorJustificativa('${encodedPayload(row)}')">${escapeHtml(x.regiao)} · preencher justificativa</button>`:`<span class="comp-pending-btn">${escapeHtml(x.regiao)}</span>`;}).join("");return `<div class="comp-pending"><div class="comp-pending-head">⚠ Justificativas pendentes (${failed.length})</div><div class="comp-pending-list">${buttons}</div></div>`;}
-function compBarsHTML(item){const rows=item.regional||[],vals=rows.flatMap(x=>[Number(x.planejado),Number(x.real)]).filter(Number.isFinite),mx=vals.length?Math.max(...vals.map(Math.abs)):1,den=mx>0?mx:1;return `<div class="comp-bars">${rows.map(x=>{const ph=Math.max(3,Math.min(100,Math.abs(Number(x.planejado))/den*100)),rh=Math.max(3,Math.min(100,Math.abs(Number(x.real))/den*100)),s=x.atingiu_meta?"ok":"bad";return `<div class="comp-region"><div class="comp-bar-stage"><div class="comp-bar plan" style="height:${ph}%"><span class="comp-bar-label">${compValue(x.planejado,item)}</span></div><div class="comp-bar real ${s}" style="height:${rh}%"><span class="comp-bar-label">${compValue(x.real,item)}</span></div></div><div class="comp-region-name">${escapeHtml(x.regiao)}</div><div class="comp-region-diff ${s}">${compPct(x.diferenca_pct)}</div></div>`;}).join("")}</div>`;}
-function compIndicatorCard(item){return `<article class="comp-card"><div class="comp-card-head"><div class="comp-card-title"><h3>${escapeHtml(item.indicador)}</h3><small>${item.tipo_agregacao==="media"?"Consolidação por média":"Consolidação por soma"}</small></div></div>${compGeneralHTML(item)}${compBarsHTML(item)}${compPendingHTML(item)}</article>`;}
-function irlColor(c){c=compClass(c);return c==="seguro"?"#13ad7b":c==="aceitavel"?"#f4c43d":c==="toleravel"?"#f58a2a":"#ef5350";}
-function irlNeedleDeg(v){
-  const n=Number(v);
-  if(!Number.isFinite(n))return -90;
-  const clamped=Math.max(0,Math.min(4,n));
-  return -90 + (clamped/4)*180;
+function execEscapeText(v){
+  return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
 }
-function irlGaugeHTML(value){
-  return `<div class="irl-gauge" style="--needle-deg:${irlNeedleDeg(value)}deg"><div class="irl-segments"></div><div class="irl-needle"></div></div>`;
+function execOpenReadOnly(title,entries){
+  const footerSave=document.getElementById("execJustModalFooterSave");if(footerSave)footerSave.style.display="none";
+  document.getElementById("execJustModalTitle").textContent=title;
+  document.getElementById("execJustModalBody").innerHTML=entries.length
+    ? entries.map(j=>`<div class="exec-just-view-row"><h4>${execEscapeText(j.heading)}</h4><div class="exec-readonly-text">${execEscapeText(j.text)}</div></div>`).join("")
+    : `<div class="exec-just-view-row">Nenhuma justificativa registrada.</div>`;
+  document.getElementById("execJustModalBg").classList.add("open");
 }
-function renderIRL(item){
-  const g=item.geral||{},s=g.atingiu_meta?"ok":"bad",rows=item.regional||[];
-  const gauges=rows.map(x=>{
-    const cls=x.classificacao_irl||"—";
-    return `<div class="irl-gauge-card"><div class="irl-gauge-name">${escapeHtml(x.regiao)}</div>${irlGaugeHTML(x.real)}<div class="irl-gauge-value">${compValue(x.real,item)}</div><div class="irl-gauge-meta">Meta: ${compValue(x.planejado,item)}<br>Diferença: ${compPct(x.diferenca_pct)}</div><span class="irl-class-pill ${compClass(cls)}">${escapeHtml(cls)}</span></div>`;
-  }).join("");
-  const geralGauge=`<div class="irl-summary-gauge-wrap">${irlGaugeHTML(g.real)}<div class="irl-gauge-value">${compValue(g.real,item)}</div><span class="irl-class-pill ${compClass(g.classificacao_irl||'')}">${escapeHtml(g.classificacao_irl||'—')}</span></div>`;
-  return `<section class="comp-irl-wrap"><div class="comp-irl-head"><h2>IRL</h2><span class="legend-item">Painel de metas com escala colorida e ponteiro indicador</span></div><div class="comp-irl-layout"><div class="comp-irl-summary"><h3>Resultado Geral</h3>${geralGauge}<div class="irl-main-meta"><div class="comp-kpi plan"><span>Planejado Geral</span><strong>${compValue(g.planejado,item)}</strong></div><div class="comp-kpi real ${s}"><span>Real Geral</span><strong>${compValue(g.real,item)}</strong></div><div class="comp-kpi diff ${s}"><span>Diferença</span><strong>${compPct(g.diferenca_pct)}</strong></div></div><div class="irl-class-scale"><div class="irl-scale-box seguro">Seguro<br>0 a 1</div><div class="irl-scale-box aceitavel">Aceitável<br>1 a 2</div><div class="irl-scale-box toleravel">Tolerável<br>2 a 3</div><div class="irl-scale-box critico">Crítico<br>3 ou +</div></div></div><div class="comp-irl-regions"><h3>Resultado por Regional</h3><div class="irl-region-grid">${gauges}</div></div><div class="comp-irl-pending"><h3>Justificativas</h3>${compPendingHTML(item)}</div></div></section>`;
+function execViewSavedJust(encoded){
+  const j=JSON.parse(decodeURIComponent(encoded));
+  execOpenReadOnly(`Justificativa — ${j.regiao||""} / ${j.indicador||""}`,[{
+    heading:[j.regiao,j.coordenacao,j.indicador].filter(Boolean).join(" · "),
+    text:j.justificativa||""
+  }]);
 }
-function renderComparisonAll(){if(!comparisonSections)return;const irl=(COMPARISON_DATA?.irl||[]).map(renderIRL).join("");const blocks=(COMPARISON_DATA?.secoes||[]).map(sec=>`<section class="comp-block"><div class="comp-block-title"><h2>${escapeHtml(sec.bloco||"Outros")}</h2><span class="legend-item"><span class="legend-swatch" style="background:#b8c0c0"></span>Planejado &nbsp; <span class="legend-swatch" style="background:#009B91"></span>Real meta atingida &nbsp; <span class="legend-swatch" style="background:#F5AA41"></span>Real meta não atingida</span></div><div class="comp-block-grid">${(sec.indicadores||[]).map(compIndicatorCard).join("")}</div></section>`).join("");comparisonSections.innerHTML=irl+blocks;if(!comparisonSections.innerHTML.trim())comparisonSections.innerHTML=`<section class="card"><p>Não há dados válidos para a comparação.</p></section>`;}
+function execViewRowJust(encoded){
+  const row=JSON.parse(decodeURIComponent(encoded));
+  const j=execSavedJust(row);
+  if(!j?.justificativa)return;
+  execViewSavedJust(encodeURIComponent(JSON.stringify(j)));
+}
+function execOpenJustModal(enc){
+  const block=decodeURIComponent(enc);
+  const rows=execJustificationsForBlock(block);
+  execOpenReadOnly(`Justificativas — ${block}`,rows.map(j=>({
+    heading:[j.region,j.row?.["Coordenação"],j.indicator].filter(Boolean).join(" · "),
+    text:j.text
+  })));
+}
+function execOpenTableJust(encoded){
+  const footerSave=document.getElementById("execJustModalFooterSave");
+  if(footerSave){footerSave.style.display="inline-flex";footerSave.disabled=false;footerSave.onclick=()=>execSaveJust(0,encoded,true);}
+  const feedback=document.getElementById("execJustModalSaveStatus");if(feedback)feedback.textContent="";
+  const row=JSON.parse(decodeURIComponent(encoded));
+  if(execEfficiencyOK(row["Eficiência"]))return;
+  const saved=execSavedJust(row),value=String(saved?.justificativa||"");
+  const bg=document.getElementById("execJustModalBg");
+  document.getElementById("execJustModalTitle").textContent=`Justificativa — ${row["Região"]} / ${row["Indicador"]}`;
+  document.getElementById("execJustModalBody").innerHTML=`<div class="exec-just-editor">
+    <h4>${String(row["Região"]||"")} · ${String(row["Coordenação"]||"")} · ${String(row["Indicador"]||"")}</h4>
+    <small>Período ${EXEC_PERIOD} · ${EXEC_WEEK_START} a ${EXEC_WEEK_END}</small>
+    <textarea id="execJustText0" minlength="${EXEC_JUST_MIN}" maxlength="${EXEC_JUST_MAX}" oninput="execUpdateCount(0)" placeholder="Digite entre ${EXEC_JUST_MIN} e ${EXEC_JUST_MAX} caracteres...">${value.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")}</textarea>
+    <div class="exec-just-editor-footer"><span id="execCount0" class="exec-charcount">${value.length}/${EXEC_JUST_MAX}</span>
+      <button id="execJustInlineSave" class="exec-save" type="button" onclick="execSaveJust(0, '${encoded}', true)">Salvar justificativa</button>
+    </div>
+  </div>`;
+  bg.classList.add("open");
+  // O comando principal também fica dentro do editor, independente do rodapé da modal.
+  if(footerSave){footerSave.style.setProperty("display","inline-flex","important");}
+}
+function execUpdateCount(i){
+  const ta=document.getElementById(`execJustText${i}`),ct=document.getElementById(`execCount${i}`);
+  if(ta&&ct)ct.textContent=`${ta.value.length}/${EXEC_JUST_MAX}`;
+}
+async function execSaveJust(i,encoded,fromTable=false){
+  if(!fromTable)return;
+  const row=JSON.parse(decodeURIComponent(encoded));
+  if(fromTable && execEfficiencyOK(row["Eficiência"])){
+    alert("Este indicador já atingiu a meta e não requer justificativa.");
+    return;
+  }
+  const ta=document.getElementById(`execJustText${i}`);
+  const txt=String(ta?.value||"").trim();
+  if(txt.length<EXEC_JUST_MIN||txt.length>EXEC_JUST_MAX){
+    alert(`A justificativa deve possuir entre ${EXEC_JUST_MIN} e ${EXEC_JUST_MAX} caracteres.`);
+    return;
+  }
+  const existing=execSavedJust(row)||EXEC_JUST_DELETED_MAP.get(execKey(row));
+  const payload={
+    periodo:EXEC_PERIOD,semana_inicio:EXEC_WEEK_START,semana_fim:EXEC_WEEK_END,
+    regiao:String(row["Região"]??"").trim(),
+    coordenacao:String(row["Coordenação"]??"").trim(),
+    indicador:String(row["Indicador"]??"").trim(),
+    justificativa:txt,
+    eficiencia_snapshot:String(row["Eficiência"]??"").trim(),
+    autor_nome:"Plataforma",
+    apagado:false,apagado_em:null
+  };
+  let url=`${EXEC_SUPABASE_URL}/rest/v1/superintendencia_justificativas`;
+  let method="POST";
+  if(existing?.id){
+    method="PATCH";
+    url+=`?id=eq.${encodeURIComponent(existing.id)}`;
+  }
+  const footerSave=document.getElementById("execJustModalFooterSave");
+  const feedback=document.getElementById("execJustModalSaveStatus");
+  if(footerSave){footerSave.disabled=true;footerSave.textContent="Salvando...";}
+  try{
+    const r=await fetch(url,{
+      method,
+      headers:{
+        apikey:EXEC_SUPABASE_KEY,Authorization:`Bearer ${EXEC_SUPABASE_KEY}`,
+        "Content-Type":"application/json",Prefer:"return=representation"
+      },
+      body:JSON.stringify(payload)
+    });
+    if(!r.ok)throw new Error(await r.text());
+    const saved=(await r.json())?.[0];
+    if(saved){
+      EXEC_JUST_DELETED_MAP.delete(execKey(row));
+      EXEC_JUST_MAP.set(execKey(row),saved);
+      await renderComparisonAll();
+      renderAllRegionTables();
+      if(regionSelect?.value)render(regionSelect.value);
+      execOpenTableJust(encoded);
+      const f=document.getElementById("execJustModalSaveStatus");if(f)f.textContent="Justificativa salva.";
+    }else{throw new Error("Servidor não retornou o registro salvo.");}
+  }catch(e){console.error(e);if(feedback)feedback.textContent="Falha ao salvar: verifique o acesso ao Supabase.";alert("Não foi possível salvar a justificativa.");}
+  finally{const b=document.getElementById("execJustModalFooterSave");if(b){b.disabled=false;b.textContent="Salvar justificativa";}}
+}
 
+async function execDeleteTableJust(encoded){
+  const row=JSON.parse(decodeURIComponent(encoded));
+  if(execEfficiencyOK(row["Eficiência"]))return;
+  const saved=execSavedJust(row);
+  if(!saved?.id)return;
+  if(!confirm("Apagar esta justificativa? O registro será marcado como excluído no histórico."))return;
+  const url=`${EXEC_SUPABASE_URL}/rest/v1/superintendencia_justificativas?id=eq.${encodeURIComponent(saved.id)}`;
+  try{
+    const r=await fetch(url,{
+      method:"PATCH",
+      headers:{apikey:EXEC_SUPABASE_KEY,Authorization:`Bearer ${EXEC_SUPABASE_KEY}`,
+        "Content-Type":"application/json",Prefer:"return=representation"},
+      body:JSON.stringify({apagado:true,apagado_em:new Date().toISOString()})
+    });
+    if(!r.ok)throw new Error(await r.text());
+    EXEC_JUST_MAP.delete(execKey(row));
+    EXEC_JUST_DELETED_MAP.set(execKey(row),{...saved,apagado:true});
+    renderAllRegionTables();
+    if(regionSelect?.value)render(regionSelect.value);
+    await renderComparisonAll();
+    execCloseJustModal();
+  }catch(e){console.error(e);alert("Não foi possível apagar a justificativa.")}
+}
 function availablePeriods(){
   return [PREVIOUS_PERIOD,CURRENT_PERIOD];
 }
@@ -3314,22 +3430,6 @@ function scoreForPeriod(rows,period){
   if(period===CURRENT_PERIOD)return totalScore(rows);
   if(period===PREVIOUS_PERIOD)return historicalScore(rows);
   return null;
-}
-
-function regionScoreForPeriod(region,period){
-  const scores=COORD_ORDER
-    .filter(coord=>coord!=="Gerência")
-    .map(coord=>{
-      const rows=rowsFor(region,coord);
-      if(!rows.length)return null;
-      const score=scoreForPeriod(rows,period);
-      return Number.isFinite(score)?score:null;
-    })
-    .filter(v=>Number.isFinite(v));
-
-  if(!scores.length)return null;
-
-  return scores.reduce((sum,v)=>sum+v,0)/scores.length;
 }
 
 function selectedPeriods(){
@@ -3372,11 +3472,8 @@ function updateEvolutionAll(){
 
   const managerSeries=regions.map(region=>({
     name:region,
-    points:periods.map(period=>({
-      label:period,
-      value:regionScoreForPeriod(region,period)
-    }))
-  })).filter(s=>s.points.some(p=>Number.isFinite(p.value)));
+    points:periods.map(period=>({label:period,value:scoreForPeriod(rowsFor(region,"Gerência"),period)}))
+  }));
   managerEvolutionChart.innerHTML=multiSeriesBarChart(managerSeries,"score");
 
   coordEvolutionCharts.innerHTML=COORD_ORDER.filter(c=>c!=="Gerência").map(coord=>{
@@ -3447,14 +3544,6 @@ function setupChartTooltips(){
 setupChartTooltips();
 
 function switchView(view){
-  if(
-    CURRENT_ACCESS_PROFILE &&
-    String(CURRENT_ACCESS_PROFILE.perfil||"").toUpperCase()==="OPERACIONAL" &&
-    view!=="tables"
-  ){
-    view="tables";
-  }
-
   document.querySelectorAll(".view-section").forEach(el=>el.classList.remove("active"));
   document.querySelectorAll(".nav-item").forEach(el=>el.classList.remove("active"));
 
@@ -3527,6 +3616,19 @@ document.querySelectorAll(".nav-item[data-view]").forEach(item=>{
   item.addEventListener("click",()=>switchView(item.dataset.view));
 });
 
+const execJustModalClose=document.getElementById("execJustModalClose");
+const execJustModalBg=document.getElementById("execJustModalBg");
+const execJustModalFooterClose=document.getElementById("execJustModalFooterClose");
+function execCloseJustModal(){
+  if(execJustModalBg)execJustModalBg.classList.remove("open");
+}
+if(execJustModalClose)execJustModalClose.addEventListener("click",execCloseJustModal);
+if(execJustModalFooterClose)execJustModalFooterClose.addEventListener("click",execCloseJustModal);
+if(execJustModalBg)execJustModalBg.addEventListener("click",e=>{if(e.target===execJustModalBg)execCloseJustModal()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&execJustModalBg?.classList.contains("open"))execCloseJustModal()});
+const execPptButton=document.getElementById("exportButton");
+if(execPptButton)execPptButton.addEventListener("click",()=>alert("A geração do PowerPoint será implementada posteriormente pelo botão, conforme definido."));
+
 detailToggle.addEventListener("click",()=>{
   detailArea.classList.toggle("open");
 
@@ -3536,29 +3638,16 @@ detailToggle.addEventListener("click",()=>{
     :"Ver detalhes das coordenações&nbsp;&nbsp;→";
 });
 
-function inicializarPainel(){
-  if(regionSelect.options.length){
-    regionSelect.value=regionSelect.options[0].value;
-    render(regionSelect.value);
-    renderComparisonAll();
-    populateEvolutionFilters();
-    carregarJustificativasAtuais();
-  }
+if(regionSelect.options.length){
+  regionSelect.value=regionSelect.options[0].value;
+  render(regionSelect.value);
+  renderComparisonAll();
+  populateEvolutionFilters();
 }
-
-bootstrapAuth();
 </script>
 
-<div id="chartTooltip" class="chart-tooltip"></div>
 
-<div id="justModalBackdrop" class="just-modal-backdrop">
-  <div class="just-modal">
-    <div class="just-modal-head">
-      <div><h3 id="justModalTitle">Justificativa</h3><p id="justModalSubtitle"></p></div>
-      <button id="justModalClose" class="just-close" type="button">×</button>
-    </div>
-    <div id="justModalBody" class="just-modal-body"></div>
-  </div>
-</div>
+
+<div id="chartTooltip" class="chart-tooltip"></div>
 </body>
 </html>
