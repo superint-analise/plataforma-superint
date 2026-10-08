@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Análise - Superintendência</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --primary:#009B91;
@@ -1602,6 +1603,49 @@ tbody td:nth-child(2){
 .table-just-snippet{display:block;max-width:250px;white-space:normal;text-align:left;line-height:1.32;font-size:9px;color:#31534d;background:#F0F8F6;border:1px solid #D7EAE5;border-radius:5px;padding:5px 7px;cursor:pointer;overflow-wrap:anywhere}
 .table-just-snippet:hover{background:#E3F3EF;color:#005852}
 .table-just-status-cell{min-width:166px;max-width:255px}
+
+/* Protecao visual e menu extraidos da versao publicada */
+/* ============================================================
+   LOGIN / CONTROLE DE ACESSO
+   ============================================================ */
+body.auth-pending .app,body.auth-logged-out .app{opacity:0;pointer-events:none}
+.login-screen{display:none}
+body.auth-pending .login-screen,body.auth-logged-out .login-screen{display:flex}
+body.access-operacional #view-general,body.access-operacional #view-comparison,body.access-operacional #view-evolution{display:none!important}
+/* V15 - menu retrátil */
+.sidebar-toggle{position:absolute}
+
+
+
+.table-export-toolbar{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(180px,1fr));
+  gap:12px;
+  margin-bottom:14px;
+}
+.table-export-action{
+  display:flex;
+  align-items:end;
+}
+.table-export-action button{
+  width:100%;
+  height:39px;
+  border:1px solid #b8d9d5;
+  border-radius:8px;
+  background:#fff;
+  color:#005852;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+}
+.table-export-action button:hover{background:#eef9f7}
+.coord-all-ranking .ranking-main table{min-width:700px}
+.coord-all-ranking .rank-name{font-weight:800;color:#173c39}
+.coord-all-ranking .rank-region{color:#6f807c;font-size:10px;font-weight:700}
+@media(max-width:900px){
+  .table-export-toolbar{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 
@@ -1680,7 +1724,7 @@ tbody td:nth-child(2){
 
   <div class="top-right">
     <div class="export-wrap" style="display:flex;gap:8px">
-      <a id="onepageButton" class="export-button" href="Onepage_Comparacao_Regioes_Agosto_2026.pdf" download>
+      <a id="onepageButton" class="export-button" href="Onepage_Comparacao_Regioes_2026-09.pdf" download>
         <svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"></path><path d="M14 2v6h6"></path><path d="M9 13h8"></path><path d="M9 17h8"></path></svg>
         Onepage PDF
       </a>
@@ -1701,10 +1745,11 @@ tbody td:nth-child(2){
     <div class="user-box">
       <div class="avatar">AS</div>
       <div class="user-copy">
-        <strong>Análise - Superintendência⌄</strong>
-        <small>Gestão Regional</small>
+        <strong id="unusedUserName">Análise - Superintendência</strong>
+        <small id="unusedUserRole">Gestão Regional</small>
       </div>
     </div>
+
   </div>
 </header>
 
@@ -1726,7 +1771,7 @@ tbody td:nth-child(2){
         <div class="filter">
           <label>Período</label>
           <select>
-            <option>Agosto/2026</option>
+            <option>Setembro/2026</option>
           </select>
         </div>
       </div>
@@ -1737,6 +1782,12 @@ tbody td:nth-child(2){
       <p class="section-subtitle">Posição consolidada no período, com destaque para a região selecionada.</p>
       <div id="rankingOverview"></div>
       <div id="miniRankings" class="mini-rankings"></div>
+    </section>
+
+    <section class="card ranking-section coord-all-ranking">
+      <h2>Ranking Consolidado das Coordenações</h2>
+      <p class="section-subtitle">Da pior para a melhor. Empates no score (2 casas): maior IRL primeiro.</p>
+      <div id="allCoordinationRanking"></div>
     </section>
 
     <section id="managerCard"></section>
@@ -1769,9 +1820,33 @@ tbody td:nth-child(2){
         <div class="filter">
           <label>Período</label>
           <select>
-            <option>Agosto/2026</option>
+            <option>Setembro/2026</option>
           </select>
         </div>
+      </div>
+    </div>
+
+    <div class="table-export-toolbar">
+      <div class="filter">
+        <label>Regional para exportação</label>
+        <select id="tableExportRegion"></select>
+      </div>
+      <div class="filter">
+        <label>Tipo de exportação</label>
+        <select id="tableExportType">
+          <option value="cards">Cards</option>
+          <option value="email">Email</option>
+        </select>
+      </div>
+      <div class="filter">
+        <label>Conteúdo</label>
+        <select id="tableExportScope">
+          <option value="regional">Regional</option>
+          <option value="cards">Cards</option>
+        </select>
+      </div>
+      <div class="table-export-action">
+        <button id="tableExportButton" type="button">Exportar tabelas</button>
       </div>
     </div>
 
@@ -1784,7 +1859,7 @@ tbody td:nth-child(2){
         <h1>Comparação entre Regiões</h1>
         <p>Desempenho dos principais indicadores por região em relação às suas metas individuais.</p>
       </div>
-      <div class="comparison-period-pill">Agosto/2026</div>
+      <div class="comparison-period-pill">Setembro/2026</div>
     </div>
 
     <div id="comparisonSummary" class="exec-summary"></div>
@@ -1860,16 +1935,17 @@ tbody td:nth-child(2){
 </div>
 
 <script>
-const DATA = [{"Região":"Baixada","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":7.673,"Realizado":8.792,"Pontos":0.9999999999999998,"Peso":0.2,"Score":2.0,"Avanço":1.145836048481689,"Desempenho":"↓","Mês Anterior":1.21929227628445,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":87.1411376098007,"Realizado":88.52531601999998,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.015884327978335,"Desempenho":"↑","Mês Anterior":0.9988674044061887,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Gerência","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":43.29742913,"Realizado":45.80733185,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.057968862596069,"Desempenho":"↑","Mês Anterior":1.025574396711832,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Gerência","Blocos":null,"Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.01,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.01,"Desempenho":"↑","Mês Anterior":0.97,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.00989898989899,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":22.4830597837,"Realizado":23.90238863000002,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.063128811645514,"Desempenho":"↓","Mês Anterior":1.161521499448732,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.0973,"Realizado":0.0975,"Pontos":0.5,"Peso":0.15,"Score":0.75,"Avanço":0.9979487179487179,"Desempenho":"↑","Mês Anterior":0.9938775510204081,"Eficiência":"⚠️"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.11,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":2.102,"Realizado":2.775,"Pontos":0.996,"Peso":0.2,"Score":1.992,"Avanço":1.320171265461465,"Desempenho":"↑","Mês Anterior":1.288634996993385,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":1.0,"Eficiência":"❌"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.00989898989899,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.831,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.8793650793650793,"Desempenho":"↓","Mês Anterior":0.9682539682539684,"Eficiência":"❌"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":20.82865792250001,"Realizado":22.33654138000002,"Pontos":0.996,"Peso":0.15,"Score":1.494,"Avanço":1.0723946527477,"Desempenho":"↓","Mês Anterior":1.16100278551532,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":6933.0,"Realizado":8974.0,"Pontos":0.996,"Peso":0.1,"Score":0.9960000000000001,"Avanço":1.294389153324679,"Desempenho":"↑","Mês Anterior":1.166363486026129,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":73537.5795238095,"Realizado":73413.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9983059066586606,"Desempenho":"↓","Mês Anterior":1.031867180786306,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.04,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.04,"Desempenho":"↑","Mês Anterior":1.01,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":13.28720918,"Realizado":12.77760789,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9616472290684595,"Desempenho":"↓","Mês Anterior":0.9754605041251119,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":18.00634155,"Realizado":20.2174521,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.122796212870904,"Desempenho":"↑","Mês Anterior":1.071590549574799,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.076,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":5.571,"Realizado":6.013,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.0793394363669,"Desempenho":"↓","Mês Anterior":1.191933570581257,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":0.0,"Eficiência":"❌"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"=","Mês Anterior":1.0,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.829,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.8772486772486773,"Desempenho":"↓","Mês Anterior":0.9724867724867726,"Eficiência":"❌"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":11791.0,"Realizado":12782.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.084047154609448,"Desempenho":"↓","Mês Anterior":1.094612145302845,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":56.94,"Realizado":69.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.211801896733404,"Desempenho":"↑","Mês Anterior":1.210526315789474,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.14,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.14,"Desempenho":"↑","Mês Anterior":1.05,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":48.74538965980069,"Realizado":49.57228812999999,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":1.0169636241698,"Desempenho":"↑","Mês Anterior":0.9761609394770745,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":8.68616245,"Realizado":9.11642608,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":1.049534375217678,"Desempenho":"↑","Mês Anterior":0.99498248630472,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.09,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":6446.042105263158,"Realizado":11266.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.747739126742808,"Desempenho":"↓","Mês Anterior":1.867134124415678,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.0973,"Realizado":0.0975,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":0.9979487179487179,"Desempenho":"↑","Mês Anterior":0.9938775510204081,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Leitura","Blocos":null,"Indicador":"ERRO DE LEITURA","Planejado":1949.05,"Realizado":1755.0,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.110569800569801,"Desempenho":"↓","Mês Anterior":1.123853211009174,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Leitura","Blocos":null,"Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.8475561132452264,"Realizado":0.8734,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.030492242756434,"Desempenho":"↓","Mês Anterior":1.032208224387925,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Construção","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Construção","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":0.955,"Realizado":1.075,"Pontos":0.9999999999999998,"Peso":0.2,"Score":2.0,"Avanço":1.12565445026178,"Desempenho":"↓","Mês Anterior":1.257861635220126,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Construção","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":25.10853877,"Realizado":26.17542,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.042490773348974,"Desempenho":"↓","Mês Anterior":1.05721991208813,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Construção","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":2.37334439,"Realizado":2.39390763,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.008664246152662,"Desempenho":"↑","Mês Anterior":1.008190342559265,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Construção","Blocos":null,"Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":0.76,"Pontos":0.0,"Peso":0.1,"Score":0.0,"Avanço":0.76,"Desempenho":"=","Mês Anterior":0.76,"Eficiência":"❌"},{"Região":"Baixada","Coordenação":"Construção","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL (SLA)","Planejado":0.945,"Realizado":0.976,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.032804232804233,"Desempenho":"=","Mês Anterior":1.032804232804233,"Eficiência":"✅"},{"Região":"Baixada","Coordenação":"Construção","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":4299.0,"Realizado":4835.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.12468015817632,"Desempenho":"↓","Mês Anterior":1.202492211838006,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":6.927,"Realizado":11.36,"Pontos":0.9999999999999998,"Peso":0.2,"Score":2.0,"Avanço":1.639959578461094,"Desempenho":"↓","Mês Anterior":1.646556423768853,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":61.87176086885233,"Realizado":61.26255652000001,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9901537577030719,"Desempenho":"↓","Mês Anterior":1.026160849710069,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":26.43898492,"Realizado":27.5909095,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.043569168161544,"Desempenho":"↑","Mês Anterior":1.038078960079754,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":null,"Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.01,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.01,"Desempenho":"↑","Mês Anterior":0.95,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.00979797979798,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":35.2958883448,"Realizado":42.99937718999993,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.218254567499357,"Desempenho":"↓","Mês Anterior":1.291029900332226,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.0389,"Realizado":0.0366,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.062841530054645,"Desempenho":"↑","Mês Anterior":1.059782608695652,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.51,"Pontos":0.8,"Peso":0.1,"Score":0.8000000000000002,"Avanço":"TOLERÁVEL","Desempenho":null,"Mês Anterior":"TOLERÁVEL","Eficiência":"⚠️"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":5.559,"Realizado":9.263,"Pontos":0.996,"Peso":0.2,"Score":1.992,"Avanço":1.666306889728368,"Desempenho":"↑","Mês Anterior":1.666141022752872,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":0.0,"Eficiência":"❌"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.01,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.861,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.9111111111111111,"Desempenho":"↓","Mês Anterior":1.004232804232804,"Eficiência":"❌"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":34.332549615,"Realizado":41.34510059999992,"Pontos":0.996,"Peso":0.15,"Score":1.494,"Avanço":1.204253720263645,"Desempenho":"↓","Mês Anterior":1.297196892941574,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":49936.0,"Realizado":68908.0,"Pontos":0.996,"Peso":0.1,"Score":0.9960000000000001,"Avanço":1.379926305671259,"Desempenho":"↑","Mês Anterior":1.314659135688953,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":81869.09285714284,"Realizado":81712.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9980811701747208,"Desempenho":"↓","Mês Anterior":1.011739713743197,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.08,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.08,"Desempenho":"↑","Mês Anterior":0.95,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":38.48520819,"Realizado":39.63261863,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.029814323319632,"Desempenho":"↓","Mês Anterior":1.039448604472812,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":15.552115,"Realizado":17.03973369,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.095653786639309,"Desempenho":"↓","Mês Anterior":1.101978490272554,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":1.368,"Realizado":2.097,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.532894736842105,"Desempenho":"↓","Mês Anterior":1.56484962406015,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":0.0,"Eficiência":"❌"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.005858585858586,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.848,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.8973544973544973,"Desempenho":"↓","Mês Anterior":0.9693121693121693,"Eficiência":"❌"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":459.0,"Realizado":504.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.098039215686275,"Desempenho":"↑","Mês Anterior":1.072176684881603,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":68.08,"Realizado":88.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.292596944770858,"Desempenho":"↑","Mês Anterior":1.264705882352941,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":0.97,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.97,"Desempenho":"↑","Mês Anterior":0.96,"Eficiência":"❌"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":23.38655267885232,"Realizado":21.62993789,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":0.9248878270784748,"Desempenho":"↓","Mês Anterior":1.003794845713434,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":2.47807781,"Realizado":2.544589770000001,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":1.026840141875933,"Desempenho":"↑","Mês Anterior":0.9377046999019644,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.023,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":8297.557894736841,"Realizado":12480.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.504056995844053,"Desempenho":"↓","Mês Anterior":1.654189944134078,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.0389,"Realizado":0.0366,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.062841530054645,"Desempenho":"↑","Mês Anterior":1.059782608695652,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":null,"Indicador":"ERRO DE LEITURA","Planejado":1475.6,"Realizado":1430.0,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.031888111888112,"Desempenho":"↓","Mês Anterior":1.036163522012579,"Eficiência":"✅"},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":null,"Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.9247371419449116,"Realizado":0.9586,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.036618901219722,"Desempenho":"↓","Mês Anterior":1.036808487604201,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":6.264,"Realizado":7.685,"Pontos":0.9999999999999998,"Peso":0.2,"Score":2.0,"Avanço":1.226851851851852,"Desempenho":"↑","Mês Anterior":1.209335800945918,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":42.17634903064397,"Realizado":37.79826832999999,"Pontos":0.0,"Peso":0.1,"Score":0.0,"Avanço":0.8961958348394973,"Desempenho":"↓","Mês Anterior":0.9332948551833936,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Gerência","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":33.55421163000001,"Realizado":35.95156248000001,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.071447092139592,"Desempenho":"↑","Mês Anterior":1.046635800376746,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Gerência","Blocos":null,"Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.06,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.06,"Desempenho":"↑","Mês Anterior":1.03,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.007373737373737,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":29.69100013310001,"Realizado":34.37097739999998,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.157622755916621,"Desempenho":"↓","Mês Anterior":1.243352135374698,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.07745333741749204,"Realizado":0.0772,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.003281572765441,"Desempenho":"↓","Mês Anterior":1.003875968992248,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.1,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":5.15,"Realizado":6.172,"Pontos":0.996,"Peso":0.2,"Score":1.992,"Avanço":1.198446601941747,"Desempenho":"↓","Mês Anterior":1.19990091652217,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":1.0,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Varejo","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.00989898989899,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.82,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.8677248677248677,"Desempenho":"↓","Mês Anterior":0.9841269841269842,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":28.70217885750001,"Realizado":32.90083578999997,"Pontos":0.996,"Peso":0.15,"Score":1.494,"Avanço":1.146283561026686,"Desempenho":"↓","Mês Anterior":1.243122977346278,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":26.127,"Realizado":30.472,"Pontos":0.996,"Peso":0.1,"Score":0.9960000000000001,"Avanço":1.16630305813909,"Desempenho":"↑","Mês Anterior":1.133731024351155,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":96279.96142857139,"Realizado":92917.0,"Pontos":0.0,"Peso":0.1,"Score":0.0,"Avanço":0.9650710139610273,"Desempenho":"↓","Mês Anterior":0.9867528062183856,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.0,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.0,"Desempenho":"↑","Mês Anterior":0.88,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Varejo","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":29.97058684000001,"Realizado":26.20038878999999,"Pontos":0.0,"Peso":0.1,"Score":0.0,"Avanço":0.8742033958117847,"Desempenho":"↑","Mês Anterior":0.82983232380027,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Varejo","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":19.94001819,"Realizado":21.56331046000001,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.081408765755996,"Desempenho":"↑","Mês Anterior":1.071590549574799,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.31,"Pontos":0.9,"Peso":0.1,"Score":0.9000000000000001,"Avanço":"ACEITÁVEL","Desempenho":null,"Mês Anterior":"ACEITÁVEL","Eficiência":"⚠️"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":1.114,"Realizado":1.396,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.253141831238779,"Desempenho":"↓","Mês Anterior":1.25544794188862,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":1.0,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↑","Mês Anterior":0.9670707070707071,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.869,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.9195767195767196,"Desempenho":"↓","Mês Anterior":0.9693121693121693,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":773.0,"Realizado":973.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.258732212160414,"Desempenho":"↑","Mês Anterior":1.014654002713704,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":77.77,"Realizado":98.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.26012601260126,"Desempenho":"↑","Mês Anterior":1.227848101265823,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.38,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.38,"Desempenho":"↑","Mês Anterior":1.32,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":12.20576219064396,"Realizado":11.59787954,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":0.9501970756803766,"Desempenho":"↓","Mês Anterior":1.025478187675748,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":0.7066086899999999,"Realizado":0.7981437399999999,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":1.129541359022913,"Desempenho":"↑","Mês Anterior":1.017246132228677,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Leste","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":9130.968421052632,"Realizado":9948.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.089479181317022,"Desempenho":"↓","Mês Anterior":1.193044802639929,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.07745333741749204,"Realizado":0.0772,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.003281572765441,"Desempenho":"↓","Mês Anterior":1.003875968992248,"Eficiência":"✅"},{"Região":"Leste","Coordenação":"Leitura","Blocos":null,"Indicador":"ERRO DE LEITURA","Planejado":1694.05,"Realizado":1862.0,"Pontos":0.0,"Peso":0.25,"Score":0.0,"Avanço":0.9098012889366272,"Desempenho":"↑","Mês Anterior":0.891459074733096,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Leitura","Blocos":null,"Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.966305287043931,"Realizado":0.9543,"Pontos":0.5,"Peso":0.2,"Score":1.0,"Avanço":0.9875760929750711,"Desempenho":"↑","Mês Anterior":0.9846838455966056,"Eficiência":"⚠️"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":5.034,"Realizado":6.243,"Pontos":0.9999999999999998,"Peso":0.2,"Score":2.0,"Avanço":1.240166865315852,"Desempenho":"↓","Mês Anterior":1.316751815004033,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":40.44315118879463,"Realizado":38.07854169,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9415325109619604,"Desempenho":"↓","Mês Anterior":0.9695732127970179,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":39.17636415,"Realizado":39.99754759000002,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.020961195808162,"Desempenho":"↓","Mês Anterior":1.030242813079116,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":null,"Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.06,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.06,"Desempenho":"↓","Mês Anterior":1.18,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.008484848484849,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":40.1615099106,"Realizado":42.69949763999999,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.063194529664089,"Desempenho":"↓","Mês Anterior":1.151860744297719,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.08420022441311731,"Realizado":0.0824,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.021847383654336,"Desempenho":"↑","Mês Anterior":1.008373205741627,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.118,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":2.337,"Realizado":2.761,"Pontos":0.996,"Peso":0.2,"Score":1.992,"Avanço":1.18142918271288,"Desempenho":"↓","Mês Anterior":1.252805670407561,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":1.0,"Eficiência":"❌"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.009494949494949,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.795,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.8412698412698414,"Desempenho":"↓","Mês Anterior":0.980952380952381,"Eficiência":"❌"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":38.5809323666,"Realizado":41.11561766,"Pontos":0.996,"Peso":0.15,"Score":1.494,"Avanço":1.065697875554565,"Desempenho":"↓","Mês Anterior":1.149006622516556,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":11057.0,"Realizado":14807.0,"Pontos":0.996,"Peso":0.1,"Score":0.9960000000000001,"Avanço":1.33915166862621,"Desempenho":"↑","Mês Anterior":1.253388554216867,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":120592.3857142857,"Realizado":120878.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.002368427193994,"Desempenho":"↓","Mês Anterior":1.023890558035316,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.3,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.3,"Desempenho":"↑","Mês Anterior":1.23,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":21.52009553,"Realizado":19.07831196,"Pontos":0.0,"Peso":0.1,"Score":0.0,"Avanço":0.886534724411607,"Desempenho":"↓","Mês Anterior":0.941489638926297,"Eficiência":"❌"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":24.4026287,"Realizado":24.87373095000001,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.019305389423067,"Desempenho":"↓","Mês Anterior":1.039846257752098,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.175,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":2.696,"Realizado":3.482,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.291543026706232,"Desempenho":"↓","Mês Anterior":1.37037037037037,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":null,"Realizado":null,"Pontos":0.0,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":1.0,"Eficiência":"❌"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↑","Mês Anterior":0.992020202020202,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.885,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.9365079365079365,"Desempenho":"↓","Mês Anterior":0.980952380952381,"Eficiência":"❌"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":4819.0,"Realizado":6508.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.35048765304005,"Desempenho":"↑","Mês Anterior":1.139008501711384,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":81.47999999999999,"Realizado":94.0,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.15365733922435,"Desempenho":"↑","Mês Anterior":1.148148148148148,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.22,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.22,"Desempenho":"↑","Mês Anterior":1.13,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":18.92305565879463,"Realizado":19.00022973,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":1.00407830915878,"Desempenho":"↑","Mês Anterior":1.000380348177438,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":3.39136874,"Realizado":3.547896730000001,"Pontos":1.0,"Peso":0.125,"Score":1.25,"Avanço":1.046154812997421,"Desempenho":"↑","Mês Anterior":1.033003300330033,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.03,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":12959.95789473684,"Realizado":15246.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.176392710827521,"Desempenho":"↓","Mês Anterior":1.196280067960297,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.08420022441311731,"Realizado":0.0824,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.021847383654336,"Desempenho":"↑","Mês Anterior":1.008373205741627,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Leitura","Blocos":null,"Indicador":"ERRO DE LEITURA","Planejado":1900.6,"Realizado":1594.0,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.192346298619824,"Desempenho":"↑","Mês Anterior":1.104688503532434,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Leitura","Blocos":null,"Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.9647665524392375,"Realizado":0.975,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.01060717490142,"Desempenho":"↑","Mês Anterior":1.009224709784411,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":1.012,"Realizado":1.442,"Pontos":0.9999999999999998,"Peso":0.2,"Score":2.0,"Avanço":1.424901185770751,"Desempenho":"↑","Mês Anterior":1.333333333333333,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":19.08879349190838,"Realizado":17.44736619000001,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9140109456051183,"Desempenho":"↓","Mês Anterior":0.942597224716346,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Gerência","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":21.57834359999999,"Realizado":23.02064992,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.066840455724322,"Desempenho":"↑","Mês Anterior":1.03443865158358,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Gerência","Blocos":null,"Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.1,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.1,"Desempenho":"↑","Mês Anterior":1.05,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.01010101010101,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":24.1096619048,"Realizado":23.35258892999996,"Pontos":0.0,"Peso":0.2,"Score":0.0,"Avanço":0.968598772650175,"Desempenho":"↓","Mês Anterior":1.026502784712886,"Eficiência":"❌"},{"Região":"Vale","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.01634230235209833,"Realizado":0.016,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.021393897006145,"Desempenho":"↑","Mês Anterior":1.0,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.145,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":1.012,"Realizado":1.442,"Pontos":0.996,"Peso":0.2,"Score":1.992,"Avanço":1.424901185770751,"Desempenho":"↑","Mês Anterior":1.333333333333333,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":null,"Indicador":null,"Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.0,"Score":0.0,"Avanço":null,"Desempenho":null,"Mês Anterior":null,"Eficiência":null},{"Região":"Vale","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99,"Pontos":0.9999999999999998,"Peso":0.05,"Score":0.4999999999999999,"Avanço":1.0,"Desempenho":"↓","Mês Anterior":1.01010101010101,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.829,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.8772486772486773,"Desempenho":"↓","Mês Anterior":0.97989417989418,"Eficiência":"❌"},{"Região":"Vale","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":24.1096619048,"Realizado":23.35258892999996,"Pontos":0.0,"Peso":0.15,"Score":0.0,"Avanço":0.968598772650175,"Desempenho":"↓","Mês Anterior":1.020478487742444,"Eficiência":"❌"},{"Região":"Vale","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":3756.0,"Realizado":4536.0,"Pontos":0.996,"Peso":0.1,"Score":0.9960000000000001,"Avanço":1.207667731629393,"Desempenho":"↑","Mês Anterior":1.096460416103756,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":null,"Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":80840.57582531241,"Realizado":86321.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.067792987849693,"Desempenho":"↑","Mês Anterior":1.066664634946956,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.1,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.1,"Desempenho":"↑","Mês Anterior":1.05,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":null,"Indicador":"CAPEX R$ MM","Planejado":19.08879349190838,"Realizado":17.44736619000001,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":0.9140109456051183,"Desempenho":"↓","Mês Anterior":0.9426229508196721,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Varejo","Blocos":null,"Indicador":"OPEX R$ MM","Planejado":12.4512108,"Realizado":14.05117898,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.128499003486472,"Desempenho":"↑","Mês Anterior":1.06784140969163,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.067,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":null,"Mês Anterior":"SEGURO","Eficiência":"✅"},{"Região":"Vale","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":11380.58947368421,"Realizado":14435.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.268387725730607,"Desempenho":"↓","Mês Anterior":1.376883910386965,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.01634230235209833,"Realizado":0.016,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.021393897006145,"Desempenho":"↑","Mês Anterior":1.0,"Eficiência":"✅"},{"Região":"Vale","Coordenação":"Leitura","Blocos":null,"Indicador":"ERRO DE LEITURA","Planejado":1258.85,"Realizado":1295.0,"Pontos":0.2,"Peso":0.25,"Score":0.5,"Avanço":0.9720849420849422,"Desempenho":"↓","Mês Anterior":1.020664869721474,"Eficiência":"❌"},{"Região":"Vale","Coordenação":"Leitura","Blocos":null,"Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.9926116695927387,"Realizado":0.9919275498112272,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":0.9993107880932004,"Desempenho":"↑","Mês Anterior":0.9939552689905299,"Eficiência":"✅"}];
+const DATA = [{"Região":"Baixada","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":10.52502137185169,"Realizado":11.16066036319341,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.060393130701063,"Desempenho":"▼","Mês Anterior":1.149968928071201,"Eficiência":""},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.306685099754604,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.306685099754604,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.99985,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.009949494949495,"Desempenho":"▲","Mês Anterior":1.009789857311619,"Eficiência":""},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":23.49781052,"Realizado":23.51,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.000518749608166,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.09641111111111111,"Realizado":0.09811111111111111,"Pontos":0.0,"Peso":0.15,"Score":0.0,"Avanço":0.9826727066817667,"Desempenho":"▲","Mês Anterior":0.9778340721975938,"Eficiência":"⚠️"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.1,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":2.601365773442816,"Realizado":3.374870789103521,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.297345734136033,"Desempenho":"▼","Mês Anterior":1.320118875778802,"Eficiência":""},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":0.01,"Realizado":0.004018541986260254,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":2.488464730290457,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.9999,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.01,"Desempenho":"▲","Mês Anterior":1.009912783168597,"Eficiência":""},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.618,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.653968253968254,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":23.49781052,"Realizado":23.51,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.000518749608166,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":7.861883496651702,"Realizado":9.856,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.253643608964388,"Desempenho":"▼","Mês Anterior":1.326316165929764,"Eficiência":""},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":68891.0,"Realizado":80446.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.167728730893731,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":0.9936221365728823,"Pontos":0.5,"Peso":0.05,"Score":0.25,"Avanço":0.9936221365728823,"Desempenho":"","Mês Anterior":null,"Eficiência":"⚠️"},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.07,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":6.568950871068886,"Realizado":6.444625524930249,"Pontos":0.0,"Peso":0.15,"Score":0.0,"Avanço":0.981073789623516,"Desempenho":"▼","Mês Anterior":1.085143290278411,"Eficiência":"❌"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":0.01,"Realizado":0.07359208956072058,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.1358841698841699,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.9998,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.00989898989899,"Desempenho":"▲","Mês Anterior":1.009666931454641,"Eficiência":""},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.556,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.5883597883597884,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":29.65971397137332,"Realizado":28.56,"Pontos":0.0,"Peso":0.15,"Score":0.0,"Avanço":0.9629223001801456,"Desempenho":"▼","Mês Anterior":1.042314572899179,"Eficiência":"❌"},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":null,"Realizado":170.0,"Pontos":null,"Peso":0.15,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.225115510558405,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.225115510558405,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.125,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.125,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.08,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":7330.0,"Realizado":12219.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.666984993178718,"Desempenho":"▼","Mês Anterior":1.747750542972386,"Eficiência":""},{"Região":"Baixada","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.09641111111111111,"Realizado":0.09811111111111111,"Pontos":0.0,"Peso":0.25,"Score":0.0,"Avanço":0.9826727066817667,"Desempenho":"▲","Mês Anterior":0.9778340721975938,"Eficiência":"⚠️"},{"Região":"Baixada","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"ERRO DE LEITURA","Planejado":2224.0,"Realizado":1909.0,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.165007857517025,"Desempenho":"▲","Mês Anterior":1.163532763532763,"Eficiência":""},{"Região":"Baixada","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.8434821321194308,"Realizado":0.8782145082825764,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.041177370379943,"Desempenho":"▲","Mês Anterior":1.037046664527504,"Eficiência":""},{"Região":"Baixada","Coordenação":"Construção","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.14,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Construção","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":1.354704727339987,"Realizado":1.34116404915964,"Pontos":0.5,"Peso":0.2,"Score":1.0,"Avanço":0.990004701462189,"Desempenho":"▼","Mês Anterior":1.125438255682039,"Eficiência":"⚠️"},{"Região":"Baixada","Coordenação":"Construção","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.2,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Construção","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.2,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Construção","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.636181868128077,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.636181868128077,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Construção","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL (SLA)","Planejado":0.945,"Realizado":0.959,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.014814814814815,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Baixada","Coordenação":"Construção","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":5.103301934358866,"Realizado":5.363,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.050888242353969,"Desempenho":"▼","Mês Anterior":1.124421233679326,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":8.544823708056647,"Realizado":13.87218105916001,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.623460182809899,"Desempenho":"▼","Mês Anterior":1.63996644974418,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.000849233275103,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.000849233275103,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.9988636564153284,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.008953188298312,"Desempenho":"▲","Mês Anterior":1.008134565168515,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":38.53330541,"Realizado":43.95,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.14057176077592,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.03911111111111111,"Realizado":0.03744444444444445,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.044510385756676,"Desempenho":"▼","Mês Anterior":1.047730307076101,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.46,"Pontos":0.8,"Peso":0.1,"Score":0.8,"Avanço":"TOLERÁVEL","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":6.828500278591247,"Realizado":11.3447576747467,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.661383497385927,"Desempenho":"▼","Mês Anterior":1.666345713630068,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":0.01,"Realizado":0.0006279533430666102,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":15.92475,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.9998273128306567,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.009926578616825,"Desempenho":"▼","Mês Anterior":1.009994260425796,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.745,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.7883597883597884,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":38.53330541,"Realizado":43.95,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.14057176077592,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":56.85639865255714,"Realizado":69.924,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.229835192821435,"Desempenho":"▼","Mês Anterior":1.35721696392638,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":75018.0,"Realizado":90480.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.206110533471967,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.075801948318388,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.075801948318388,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":1.7163234294654,"Realizado":2.527423384413306,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.472579900165173,"Desempenho":"▼","Mês Anterior":1.532778278342774,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":0.01,"Realizado":0.0281136638452237,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.3556989247311828,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.9979,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.007979797979798,"Desempenho":"▲","Mês Anterior":1.006274869911234,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.864,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.9142857142857144,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":5.668101590322586,"Realizado":5.437,"Pontos":0.0,"Peso":0.15,"Score":0.0,"Avanço":0.9592276908520558,"Desempenho":"▼","Mês Anterior":1.00511639681914,"Eficiência":"❌"},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":null,"Realizado":220.0,"Pontos":null,"Peso":0.15,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":0.9114529671253605,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.9114529671253605,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.125,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.125,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.02,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":9435.0,"Realizado":13089.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.387281399046105,"Desempenho":"▼","Mês Anterior":1.503976861894432,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.03911111111111111,"Realizado":0.03744444444444445,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.044510385756676,"Desempenho":"▼","Mês Anterior":1.047730307076101,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"ERRO DE LEITURA","Planejado":1763.0,"Realizado":1171.0,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.505550811272417,"Desempenho":"▼","Mês Anterior":1.534208059981256,"Eficiência":""},{"Região":"Centro Sul","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.9240266656023971,"Realizado":0.9578,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.036550172906087,"Desempenho":"▼","Mês Anterior":1.037663051157025,"Eficiência":""},{"Região":"Leste","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":7.906413799792763,"Realizado":8.853989091664788,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.119848937314268,"Desempenho":"▼","Mês Anterior":1.203880257265687,"Eficiência":""},{"Região":"Leste","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.055664180745756,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.055664180745756,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.9848633581155701,"Pontos":0.9481,"Peso":0.1,"Score":0.9481,"Avanço":0.9948114728440103,"Desempenho":"▲","Mês Anterior":0.9915887633458422,"Eficiência":"⚠️"},{"Região":"Leste","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":32.57770618,"Realizado":34.97,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.073433464185046,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.07687777777777778,"Realizado":0.07733333333333332,"Pontos":0.5,"Peso":0.15,"Score":0.75,"Avanço":0.9941091954022989,"Desempenho":"▲","Mês Anterior":0.9909967845659164,"Eficiência":"⚠️"},{"Região":"Leste","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.1,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":6.446996279979333,"Realizado":7.310002694910701,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.133861782674107,"Desempenho":"▼","Mês Anterior":1.198568612063436,"Eficiência":""},{"Região":"Leste","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":0.01,"Realizado":0.001023840865876847,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":9.767142857142852,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.9995774624997968,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.009674204545249,"Desempenho":"▼","Mês Anterior":1.009900452148787,"Eficiência":""},{"Região":"Leste","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.738,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.780952380952381,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":32.57770618,"Realizado":34.97,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.073433464185046,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":29.93644483923234,"Realizado":31.482,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.051627879297884,"Desempenho":"▼","Mês Anterior":1.166265234457008,"Eficiência":""},{"Região":"Leste","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":85342.0,"Realizado":102395.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.199819549576996,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":0.9607985188006208,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.9607985188006208,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.19,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":1.45941751981343,"Realizado":1.543986396754087,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.057947006797252,"Desempenho":"▼","Mês Anterior":1.228440677585054,"Eficiência":""},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":0.01,"Realizado":0.09138920780711826,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.1094221105527638,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.9701492537313433,"Pontos":0.7995,"Peso":0.05,"Score":0.3997,"Avanço":0.979948741142771,"Desempenho":"▲","Mês Anterior":0.9732770745428974,"Eficiência":"⚠️"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.752,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.7957671957671958,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":5.050897656850391,"Realizado":4.684,"Pontos":0.0,"Peso":0.15,"Score":0.0,"Avanço":0.9273599106976999,"Desempenho":"▼","Mês Anterior":1.014620785227532,"Eficiência":"❌"},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":null,"Realizado":203.0,"Pontos":null,"Peso":0.15,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.498014606713393,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.498014606713393,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.125,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.125,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.01,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Leste","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":10383.0,"Realizado":10429.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.00443031879033,"Desempenho":"▼","Mês Anterior":1.089475413426788,"Eficiência":""},{"Região":"Leste","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.07687777777777778,"Realizado":0.07733333333333332,"Pontos":0.5,"Peso":0.25,"Score":1.25,"Avanço":0.9941091954022989,"Desempenho":"▲","Mês Anterior":0.9909967845659164,"Eficiência":"⚠️"},{"Região":"Leste","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"ERRO DE LEITURA","Planejado":2045.0,"Realizado":1828.0,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.11870897155361,"Desempenho":"▲","Mês Anterior":1.093768545994065,"Eficiência":""},{"Região":"Leste","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.9663052870439309,"Realizado":0.9558369392440834,"Pontos":0.5,"Peso":0.2,"Score":1.0,"Avanço":0.9891666247300874,"Desempenho":"▲","Mês Anterior":0.9876011964465659,"Eficiência":"⚠️"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":5.838729998379934,"Realizado":7.030511015446693,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.204116480364299,"Desempenho":"▼","Mês Anterior":1.276304799146999,"Eficiência":""},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.286231488117213,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.286231488117213,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.992435243979707,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.002459842403744,"Desempenho":"▲","Mês Anterior":0.9998944183352684,"Eficiência":"✅"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":43.83095024,"Realizado":43.57,"Pontos":0.5,"Peso":0.2,"Score":1.0,"Avanço":0.9940464389074126,"Desempenho":"","Mês Anterior":null,"Eficiência":"⚠️"},{"Região":"Oeste","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.08276666666666667,"Realizado":0.08375555555555554,"Pontos":0.0,"Peso":0.15,"Score":0.0,"Avanço":0.9881931546829399,"Desempenho":"▲","Mês Anterior":0.9727901161935584,"Eficiência":"⚠️"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.18,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":3.117029007398669,"Realizado":3.501542366095901,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.123358928577354,"Desempenho":"▼","Mês Anterior":1.181659059326792,"Eficiência":""},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":0.01,"Realizado":0.001780805545595793,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":5.615436241610738,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.9992710237933053,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.009364670498288,"Desempenho":"▼","Mês Anterior":1.009598560114135,"Eficiência":""},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.646,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.6835978835978836,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":43.83095024,"Realizado":43.57,"Pontos":0.5,"Peso":0.15,"Score":0.75,"Avanço":0.9940464389074126,"Desempenho":"","Mês Anterior":null,"Eficiência":"⚠️"},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":15.2849747196635,"Realizado":16.13,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.055284702515694,"Desempenho":"▼","Mês Anterior":1.217745401028754,"Eficiência":""},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":115810.0,"Realizado":133499.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.152741559450825,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.291718777123315,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.291718777123315,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.18,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":2.721700990981265,"Realizado":3.528968649350793,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.296604094661582,"Desempenho":"▼","Mês Anterior":1.378896523805254,"Eficiência":""},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":0.01,"Realizado":0.1110180843938379,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.09007541478129714,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.9855994641661086,"Pontos":0.9555,"Peso":0.05,"Score":0.4778,"Avanço":0.9955550143092006,"Desempenho":"▲","Mês Anterior":0.9901902765564018,"Eficiência":"⚠️"},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.584,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.617989417989418,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":9.900590384766653,"Realizado":10.534,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.063976953961042,"Desempenho":"▼","Mês Anterior":1.178561694709579,"Eficiência":""},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":null,"Realizado":208.0,"Pontos":null,"Peso":0.15,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.281132677011685,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.281132677011685,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.125,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Projetos Especiais e Grandes Clientes","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.125,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.03,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Oeste","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":14737.0,"Realizado":16697.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.132998575015268,"Desempenho":"▼","Mês Anterior":1.176388888888889,"Eficiência":""},{"Região":"Oeste","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.08276666666666667,"Realizado":0.08375555555555554,"Pontos":0.0,"Peso":0.25,"Score":0.0,"Avanço":0.9881931546829399,"Desempenho":"▲","Mês Anterior":0.9727901161935584,"Eficiência":"⚠️"},{"Região":"Oeste","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"ERRO DE LEITURA","Planejado":2103.0,"Realizado":1889.0,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.113287453679195,"Desempenho":"▼","Mês Anterior":1.115626788780767,"Eficiência":""},{"Região":"Oeste","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.9647665524392374,"Realizado":0.9754797494581987,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.011104444895892,"Desempenho":"▲","Mês Anterior":1.010648541111739,"Eficiência":""},{"Região":"Vale","Coordenação":"Gerência","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":1.259456916369166,"Realizado":1.756813380671383,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.394897560875702,"Desempenho":"▼","Mês Anterior":1.425141676505342,"Eficiência":""},{"Região":"Vale","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Vale","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Vale","Coordenação":"Gerência","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.015291236095657,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.015291236095657,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Vale","Coordenação":"Gerência","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.9999530978847146,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.010053634226985,"Desempenho":"▲","Mês Anterior":1.010048012391571,"Eficiência":""},{"Região":"Vale","Coordenação":"Gerência","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO TOTAL EM 12 MESES","Planejado":26.87511173,"Realizado":25.48515,"Pontos":0.0,"Peso":0.2,"Score":0.0,"Avanço":0.9482807087849826,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Vale","Coordenação":"Gerência","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.06451111111111112,"Realizado":0.06480000000000001,"Pontos":0.5,"Peso":0.15,"Score":0.75,"Avanço":0.9955418381344305,"Desempenho":"▲","Mês Anterior":0.9887081339712921,"Eficiência":"⚠️"},{"Região":"Vale","Coordenação":"Varejo","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.13,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Vale","Coordenação":"Varejo","Blocos":"PERDAS","Indicador":"IEN (GWh)","Planejado":1.259456916369166,"Realizado":1.756813380671383,"Pontos":1.0,"Peso":0.15,"Score":1.5,"Avanço":1.394897560875702,"Desempenho":"▼","Mês Anterior":1.425141676505342,"Eficiência":""},{"Região":"Vale","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% RECLAMAÇÃO PROCEDENTE","Planejado":0.01,"Realizado":0.003654531156034602,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":2.736329113924051,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Vale","Coordenação":"Varejo","Blocos":"CLIENTE","Indicador":"% ATENDIMENTO NO PRAZO DE SERVIÇOS REGULADOS","Planejado":0.99,"Realizado":0.9999530978847146,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.010053634226985,"Desempenho":"▲","Mês Anterior":1.010048012391571,"Eficiência":""},{"Região":"Vale","Coordenação":"Varejo","Blocos":"QUALIDADE","Indicador":"IQG - ÍNDICE DE QUALIDADE GERAL","Planejado":0.945,"Realizado":0.731,"Pontos":0.0,"Peso":0.05,"Score":0.0,"Avanço":0.7735449735449735,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Vale","Coordenação":"Varejo","Blocos":"COBRANÇA","Indicador":"ARRECADAÇÃO R$ MM","Planejado":26.87511173,"Realizado":25.48515,"Pontos":0.0,"Peso":0.15,"Score":0.0,"Avanço":0.9482807087849826,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Vale","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO PERDAS","Planejado":4.837780956295533,"Realizado":5.936,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.227008840132649,"Desempenho":"▲","Mês Anterior":1.196679208503405,"Eficiência":""},{"Região":"Vale","Coordenação":"Varejo","Blocos":"PRODUT.","Indicador":"% CUMPRIMENTO DO PLANO FÍSICO CORE","Planejado":69915.0,"Realizado":97189.0,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":1.390102267038547,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Vale","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"AIS% REALIZADO R$","Planejado":1.0,"Realizado":1.015291236095657,"Pontos":1.0,"Peso":0.05,"Score":0.5,"Avanço":1.015291236095657,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Vale","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"CAPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Vale","Coordenação":"Varejo","Blocos":"ORÇAMENTO","Indicador":"OPEX R$ MM","Planejado":null,"Realizado":null,"Pontos":null,"Peso":0.1,"Score":null,"Avanço":null,"Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Vale","Coordenação":"Leitura","Blocos":"SEGURANÇA","Indicador":"IRL","Planejado":0.0,"Realizado":0.07,"Pontos":1.0,"Peso":0.1,"Score":1.0,"Avanço":"SEGURO","Desempenho":"","Mês Anterior":null,"Eficiência":""},{"Região":"Vale","Coordenação":"Leitura","Blocos":"COBRANÇA","Indicador":"CORTE NO DISJUNTOR","Planejado":12941.0,"Realizado":15296.0,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.181979754269376,"Desempenho":"▼","Mês Anterior":1.268341973464546,"Eficiência":""},{"Região":"Vale","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"CLIENTES NÃO LIDOS","Planejado":0.06451111111111112,"Realizado":0.06480000000000001,"Pontos":0.5,"Peso":0.25,"Score":1.25,"Avanço":0.9955418381344305,"Desempenho":"▲","Mês Anterior":0.9887081339712921,"Eficiência":"⚠️"},{"Região":"Vale","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"ERRO DE LEITURA","Planejado":1400.0,"Realizado":1399.0,"Pontos":1.0,"Peso":0.25,"Score":2.5,"Avanço":1.000714796283059,"Desempenho":"▼","Mês Anterior":1.005473025801407,"Eficiência":""},{"Região":"Vale","Coordenação":"Leitura","Blocos":"LEITURA","Indicador":"ADERÊNCIA DE ENTREGA DE FATURA","Planejado":0.9864238657808495,"Realizado":0.9876,"Pontos":1.0,"Peso":0.2,"Score":2.0,"Avanço":1.001192321333608,"Desempenho":"▼","Mês Anterior":1.001611631016,"Eficiência":""}];
 const REGION_ORDER = ["Baixada", "Centro Sul", "Leste", "Oeste", "Vale"];
 const COORD_ORDER = ["Gerência", "Varejo", "Projetos Especiais e Grandes Clientes", "Leitura", "Construção"];
 const EXEC_SUPABASE_URL="https://fjgfwfnnhebfvuvvjsui.supabase.co";
 const EXEC_SUPABASE_KEY="sb_publishable_QexGHESAqtHDVlI1h3aM1Q_Cew_cax7";
-const EXEC_PERIOD="Agosto/2026";
-const EXEC_WEEK_START="2026-09-21";
-const EXEC_WEEK_END="2026-09-27";
+const EXEC_PERIOD="Setembro/2026";
+const EXEC_WEEK_START="2026-10-05";
+const EXEC_WEEK_END="2026-10-11";
 const EXEC_JUST_MIN=30;
 const EXEC_JUST_MAX=350;
+
 const EXEC_JUST_MAP=new Map();
 const EXEC_JUST_DELETED_MAP=new Map();
 
@@ -1882,6 +1958,11 @@ const detailToggle=document.getElementById("detailToggle");
 const rankingOverview=document.getElementById("rankingOverview");
 const miniRankings=document.getElementById("miniRankings");
 const allRegionTables=document.getElementById("allRegionTables");
+const allCoordinationRanking=document.getElementById("allCoordinationRanking");
+const tableExportRegion=document.getElementById("tableExportRegion");
+const tableExportType=document.getElementById("tableExportType");
+const tableExportScope=document.getElementById("tableExportScope");
+const tableExportButton=document.getElementById("tableExportButton");
 
 const comparisonSections=document.getElementById("comparisonSections");
 
@@ -1894,8 +1975,8 @@ const coordEvolutionCharts=document.getElementById("coordEvolutionCharts");
 const indicatorEvolutionSections=document.getElementById("indicatorEvolutionSections");
 
 
-const CURRENT_PERIOD="Agosto/2026";
-const PREVIOUS_PERIOD="Julho/2026";
+const CURRENT_PERIOD="Setembro/2026";
+const PREVIOUS_PERIOD="Agosto/2026";
 
 const ICONS={
 trophy:`<svg viewBox="0 0 24 24"><path d="M8 4h8v4c0 4-2 6-4 6s-4-2-4-6V4Z"></path><path d="M8 6H4c0 4 1.5 6 4.2 6"></path><path d="M16 6h4c0 4-1.5 6-4.2 6"></path><path d="M12 14v4"></path><path d="M8 21h8"></path><path d="M9 18h6"></path></svg>`,
@@ -1924,7 +2005,12 @@ function formatNumber(v,d=1){
 }
 
 function formatPoints(v){return formatNumber(v,3)}
-function formatScore(v){return formatNumber(v,1)}
+function formatScore(v){
+  const n=number(v);
+  return n===null?"-":n.toLocaleString("pt-BR",{
+    minimumFractionDigits:2,maximumFractionDigits:2
+  });
+}
 
 function isPlanPhysicalIndicator(ind){
   const raw=String(ind||"").trim().toUpperCase();
@@ -2065,14 +2151,46 @@ function renderPerformanceRow(row){
   return renderPerformance(row?.["Desempenho"]);
 }
 
-function renderEfficiency(v){
-  const x=String(v||"");
+function performanceDirection(row){
+  const atual=number(row?.["Avanço"]);
+  const anterior=number(row?.["Mês Anterior"]);
 
-  if(x==="✅")return `<span class="eff ok">✓</span>`;
-  if(x==="⚠️")return `<span class="eff warn">!</span>`;
-  if(x==="❌")return `<span class="eff bad">×</span>`;
+  if(atual!==null&&anterior!==null){
+    const diff=atual-anterior;
+    if(Math.abs(diff)<1e-9)return "equal";
+    return diff>0?"up":"down";
+  }
 
-  return "-";
+  const raw=String(row?.["Desempenho"]||"").trim().toUpperCase();
+  if(raw==="↑"||raw==="⬆"||raw==="MELHORA"||raw==="MELHOR"||raw==="UP"||raw==="ALTA")return "up";
+  if(raw==="↓"||raw==="⬇"||raw==="PIORA"||raw==="PIOR"||raw==="DOWN"||raw==="BAIXA")return "down";
+  if(raw==="="||raw==="IGUAL"||raw==="ESTÁVEL"||raw==="ESTAVEL")return "equal";
+  return null;
+}
+
+function isRowOnTarget(row){
+  const x=String(row?.["Eficiência"]||"");
+  return x==="✅" || x.toUpperCase()==="OK" || x.toUpperCase()==="SIM";
+}
+
+function renderEfficiency(row){
+  const valor = String(
+    row?.["Eficiência"] ?? ""
+  ).trim();
+
+  if(valor === "✅"){
+    return `<span class="eff ok">✓</span>`;
+  }
+
+  if(valor === "⚠️"){
+    return `<span class="eff warn">!</span>`;
+  }
+
+  if(valor === "❌"){
+    return `<span class="eff bad">×</span>`;
+  }
+
+  return "";
 }
 
 function rowsFor(region,coord){
@@ -2189,7 +2307,7 @@ function table(rows,totalLabel,scoreOverride=null,isTables=false){
       <td>${formatAdvance(r["Avanço"])}</td>
       <td>${renderPerformanceRow(r)}</td>
       <td>${formatPreviousMonth(r["Mês Anterior"])}</td>
-      <td>${renderEfficiency(r["Eficiência"])}</td>
+      <td>${renderEfficiency(r)}</td>
       ${isTables ? `<td class="table-just-status-cell">${execEfficiencyOK(r["Eficiência"])
         ? '<span class="table-just-not-required">—</span>'
         : execSavedJust(r)?.justificativa
@@ -2885,6 +3003,44 @@ function historicalScore(rows){
 }
 
 
+function coordinationIRL(rows){
+  const irl=rows.find(r=>execNorm(r["Indicador"])==="IRL");
+  return irl?number(irl["Realizado"]):null;
+}
+
+function renderAllCoordinationRanking(region){
+  if(!allCoordinationRanking)return;
+
+  const items=REGION_ORDER.flatMap(reg=>
+    COORD_ORDER.filter(coord=>coord!=="Gerência"&&rowsFor(reg,coord).length).map(coord=>{
+      const rows=rowsFor(reg,coord);
+      return {region:reg,coord,score:totalScore(rows),irl:coordinationIRL(rows)};
+    })
+  ).sort((a,b)=>{
+    // Classificação da melhor para a pior: maior score primeiro.
+    // Empate no score exibido com duas casas: menor IRL primeiro.
+    const scoreA=Math.round((a.score+Number.EPSILON)*100);
+    const scoreB=Math.round((b.score+Number.EPSILON)*100);
+    if(scoreA!==scoreB)return scoreB-scoreA;
+    if(a.irl!==null&&b.irl!==null&&Math.abs(a.irl-b.irl)>1e-12)return a.irl-b.irl;
+    if(a.irl===null&&b.irl!==null)return 1;
+    if(a.irl!==null&&b.irl===null)return -1;
+    return a.coord.localeCompare(b.coord,"pt-BR")||a.region.localeCompare(b.region,"pt-BR");
+  });
+
+  const rows=items.map((item,idx)=>`<tr class="${item.region===region?"selected-region":""}">
+      <td class="rank-pos rank-cell"><span class="rank-number">${idx+1}º</span></td>
+      <td><div class="rank-name">${item.coord} – ${item.region}</div></td>
+      <td class="rank-score">${formatScore(item.score)}</td>
+      <td class="rank-score">${item.irl===null?"—":item.irl.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:3})}</td>
+    </tr>`).join("");
+
+  allCoordinationRanking.innerHTML=`<div class="ranking-main"><table>
+    <thead><tr><th>Posição</th><th>Coordenação – Regional</th><th>Score</th><th>IRL (desempate)</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
 function renderAllRegionTables(){
   if(!allRegionTables)return;
 
@@ -2993,13 +3149,24 @@ function execIndicatorsForBlock(block){
 }
 function execRowsForIndicator(block,ind){
   return REGION_ORDER.map(region=>{
-    const candidates=DATA.filter(r=>execBlockName(r)===block&&r["Região"]===region&&execCanonicalIndicator(r["Indicador"])===ind);
-    if(!candidates.length)return null;
+    const encontrados=DATA.filter(r=>execBlockName(r)===block
+      &&r["Região"]===region
+      &&execCanonicalIndicator(r["Indicador"])===ind);
+    if(!encontrados.length)return null;
+
+    // A Gerência já é consolidada no Excel oficial. Não somar com coordenações.
+    const gerencia=encontrados.filter(r=>{
+      const nome=execNorm(r["Coordenação"]);
+      return nome==="GERENCIA"||nome==="TOTAL GERENCIA";
+    });
+    const candidates=gerencia.length?[gerencia[0]]:encontrados;
+
     const ps=candidates.map(r=>number(r["Planejado"])).filter(Number.isFinite);
     const rs=candidates.map(r=>number(r["Realizado"])).filter(Number.isFinite);
     if(!ps.length||!rs.length)return null;
     const type=execAggType(ind);
-    const p=execAggregate(ps,type),real=execAggregate(rs,type);
+    const p=gerencia.length?ps[0]:execAggregate(ps,type);
+    const real=gerencia.length?rs[0]:execAggregate(rs,type);
     const source=candidates.find(r=>!execEfficiencyOK(r["Eficiência"]))||candidates[0];
     return {
       region,planned:p,real,
@@ -3009,6 +3176,7 @@ function execRowsForIndicator(block,ind){
     };
   }).filter(Boolean);
 }
+
 function execGeneralAttainment(planned,real,ind){
   const p=number(planned),r=number(real);
   if(p===null||r===null)return false;
@@ -3258,11 +3426,18 @@ function execRenderBlock(block){
     </div>
   </section>`;
 }
-async function renderComparisonAll(){
-  await execLoadJustifications();
+function execPaintComparison(){
+  if(!comparisonSections)return;
   execSummary();
   const order=["Segurança","Perdas","Cliente","Qualidade","Produtividade","Orçamento","Leitura","Cobrança"];
   comparisonSections.innerHTML=`<div class="exec-block-grid">${order.map(execRenderBlock).join("")}</div>`;
+}
+async function renderComparisonAll(){
+  // Exibir indicadores imediatamente; a rede não pode bloquear o painel.
+  execPaintComparison();
+  await execLoadJustifications();
+  // Incorporar justificativas somente depois de carregadas.
+  execPaintComparison();
 }
 function execAllBlockRows(block){
   const arr=[];
@@ -3416,6 +3591,125 @@ async function execDeleteTableJust(encoded){
     execCloseJustModal();
   }catch(e){console.error(e);alert("Não foi possível apagar a justificativa.")}
 }
+function populateTableExportRegions(){
+  if(!tableExportRegion)return;
+  tableExportRegion.innerHTML="";
+  REGION_ORDER.filter(r=>DATA.some(x=>x["Região"]===r)).forEach(r=>{
+    const o=document.createElement("option");
+    o.value=r;
+    o.textContent=r;
+    tableExportRegion.appendChild(o);
+  });
+}
+
+function exportRowDirection(row){
+  const dir=performanceDirection(row);
+  if(dir==="up")return "Melhorou";
+  if(dir==="down")return "Piorou";
+  if(dir==="equal")return "Estável";
+  return "-";
+}
+
+function buildExportTableRows(rows,mode){
+  const normalized=rows
+    .filter(r=>String(r["Indicador"]??"").trim()!=="")
+    .map(r=>({...r}));
+
+  let lastBlock="";
+  normalized.forEach(r=>{
+    const indicador=String(r["Indicador"]??"").trim().toUpperCase();
+    let raw=String(r["Blocos"]??"").trim();
+    if(raw.toUpperCase()==="PERDAS" && !indicador.startsWith("IEN"))raw="";
+    if(raw&&raw!=="-")lastBlock=raw;
+    if(indicador.startsWith("IEN")){
+      r.__block="PERDAS";
+      lastBlock="PERDAS";
+    }else{
+      r.__block=raw&&raw!=="-"?raw:lastBlock;
+    }
+  });
+
+  if(mode==="email"){
+    return normalized.map(r=>`<tr>
+      <td>${r.__block||"-"}</td>
+      <td>${r["Indicador"]??"-"}</td>
+      <td>${formatDataValue(r["Planejado"],r["Indicador"])}</td>
+      <td>${formatDataValue(r["Realizado"],r["Indicador"])}</td>
+      <td>${String(formatAdvance(r["Avanço"]))}</td>
+    </tr>`).join("");
+  }
+
+  return normalized.map(r=>`<tr>
+    <td>${r.__block||"-"}</td>
+    <td>${r["Indicador"]??"-"}</td>
+    <td>${formatDataValue(r["Planejado"],r["Indicador"])}</td>
+    <td>${formatDataValue(r["Realizado"],r["Indicador"])}</td>
+    <td>${formatPoints(r["Pontos"])}</td>
+    <td>${formatWeight(r["Peso"])}</td>
+    <td>${formatScore(r["Score"])}</td>
+    <td>${String(formatAdvance(r["Avanço"]))}</td>
+    <td>${exportRowDirection(r)}</td>
+    <td>${formatPreviousMonth(r["Mês Anterior"])}</td>
+    <td>${isRowOnTarget(r)?"✓":"! / ×"}</td>
+  </tr>`).join("");
+}
+
+function buildRegionExportHTML(region,type,scope){
+  const sections=COORD_ORDER.filter(coord=>rowsFor(region,coord).length).map(coord=>{
+    const rows=rowsFor(region,coord);
+    const label=coord;
+    const headers=type==="email"
+      ? `<tr><th>Blocos</th><th>Indicador</th><th>Planejado</th><th>Realizado</th><th>Avanço</th></tr>`
+      : `<tr><th>Blocos</th><th>Indicador</th><th>Planejado</th><th>Realizado</th><th>Pontos</th><th>Peso</th><th>Score</th><th>Avanço</th><th>Desempenho</th><th>Mês Anterior</th><th>Eficiência</th></tr>`;
+    return `<section class="card-block">
+      <h2>${scope==="cards"?"Cards":"Regional"} · ${region} · ${label}</h2>
+      <table>
+        <thead>${headers}</thead>
+        <tbody>${buildExportTableRows(rows,type)}</tbody>
+      </table>
+    </section>`;
+  }).join("");
+
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Exportação ${region}</title>
+  <style>
+    body{font-family:Segoe UI,Arial,sans-serif;background:#f5f7f7;color:#173c39;padding:24px}
+    h1{margin:0 0 6px;font-size:26px} p{margin:0 0 18px;color:#5f7270}
+    .card-block{background:#fff;border:1px solid #dce7e5;border-radius:10px;padding:14px 14px 10px;margin-bottom:16px}
+    .card-block h2{margin:0 0 10px;font-size:16px}
+    table{width:100%;border-collapse:collapse;font-size:11px}
+    thead th{background:#009B91;color:#fff;padding:8px;border:1px solid #dce7e5;text-align:left}
+    tbody td{padding:7px 8px;border:1px solid #dce7e5;vertical-align:top}
+    .advance-badge{display:inline-block;padding:3px 8px;border-radius:12px;font-weight:800}
+    .advance-ok{background:#d9f2ef;color:#00675f;border:1px solid #81cfc7}
+    .advance-bad{background:#fde7e7;color:#c83535;border:1px solid #f3aaaa}
+    .irl{display:inline-block;padding:3px 8px;border-radius:12px;font-weight:800}
+    .irl-seguro{background:#dff5ef;color:#007b72;border:1px solid #a4dcd6}
+    .irl-aceitavel{background:#e7f7f5;color:#278d85;border:1px solid #b9e3df}
+    .irl-toleravel{background:#fff1dc;color:#a5690b;border:1px solid #f3cf95}
+    .irl-critico,.irl-zero{background:#fde6e6;color:#c83f3a;border:1px solid #f3aaaa}
+  </style></head><body>
+  <h1>Exportação ${type==="cards"?"Cards":"Email"}</h1>
+  <p>Regional selecionada: <strong>${region}</strong> · Conteúdo: <strong>${scope==="cards"?"Cards":"Regional"}</strong> · Período: <strong>${CURRENT_PERIOD}</strong></p>
+  ${sections}
+  </body></html>`;
+}
+
+function downloadRegionTables(){
+  if(!tableExportRegion || !tableExportType || !tableExportScope)return;
+  const region=tableExportRegion.value;
+  const type=tableExportType.value;
+  const scope=tableExportScope.value;
+  if(!region)return;
+  const html=buildRegionExportHTML(region,type,scope);
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`${type}_${scope}_${region.replaceAll(' ','_').toLowerCase()}.html`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},200);
+}
+
 function availablePeriods(){
   return [PREVIOUS_PERIOD,CURRENT_PERIOD];
 }
@@ -3544,6 +3838,9 @@ function setupChartTooltips(){
 setupChartTooltips();
 
 function switchView(view){
+  // O HTML gerado nesta versão não incorpora o gerenciador de perfis.
+  // Não referenciar CURRENT_ACCESS_PROFILE sem ele estar definido.
+  if(typeof CURRENT_ACCESS_PROFILE!=="undefined" && CURRENT_ACCESS_PROFILE && String(CURRENT_ACCESS_PROFILE.perfil||"").toUpperCase()==="OPERACIONAL" && view!=="tables") view="tables";
   document.querySelectorAll(".view-section").forEach(el=>el.classList.remove("active"));
   document.querySelectorAll(".nav-item").forEach(el=>el.classList.remove("active"));
 
@@ -3569,6 +3866,7 @@ function switchView(view){
 
 function render(region){
   renderRankings(region);
+  renderAllCoordinationRanking(region);
   renderManager(region);
   renderCoords(region);
 }
@@ -3586,6 +3884,7 @@ regionSelect.addEventListener("change",()=>{
   detailArea.classList.remove("open");
   detailToggle.innerHTML="Ver detalhes das coordenações&nbsp;&nbsp;→";
   render(regionSelect.value);
+  if(tableExportRegion)tableExportRegion.value=regionSelect.value;
 
   if(evolutionRegionMenu.children.length){
     [...evolutionRegionMenu.querySelectorAll('input[type="checkbox"]')].forEach(o=>o.checked=(o.value===regionSelect.value));
@@ -3611,6 +3910,7 @@ evolutionRegionMenu.addEventListener("change",()=>{
 
 evolutionStartMonth.addEventListener("change",updateEvolutionAll);
 evolutionEndMonth.addEventListener("change",updateEvolutionAll);
+if(tableExportButton)tableExportButton.addEventListener("click",downloadRegionTables);
 
 document.querySelectorAll(".nav-item[data-view]").forEach(item=>{
   item.addEventListener("click",()=>switchView(item.dataset.view));
@@ -3638,12 +3938,21 @@ detailToggle.addEventListener("click",()=>{
     :"Ver detalhes das coordenações&nbsp;&nbsp;→";
 });
 
-if(regionSelect.options.length){
-  regionSelect.value=regionSelect.options[0].value;
-  render(regionSelect.value);
-  renderComparisonAll();
-  populateEvolutionFilters();
+function inicializarPainel(){
+  populateTableExportRegions();
+  if(regionSelect.options.length){
+    regionSelect.value=regionSelect.options[0].value;
+    if(tableExportRegion && tableExportRegion.options.length) tableExportRegion.value=regionSelect.value;
+    render(regionSelect.value);
+    renderComparisonAll();
+    populateEvolutionFilters();
+  }
 }
+
+// A versão anterior declarava esta função, mas nunca a executava:
+// o layout carregava sem dados e sem ativar as interações.
+inicializarPainel();
+
 </script>
 
 
